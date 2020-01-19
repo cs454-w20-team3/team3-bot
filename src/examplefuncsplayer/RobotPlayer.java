@@ -1,4 +1,4 @@
-package team3player;
+package examplefuncsplayer;
 import battlecode.common.*;
 
 public strictfp class RobotPlayer {
@@ -29,9 +29,7 @@ public strictfp class RobotPlayer {
         // This is the RobotController object. You use it to perform actions from this robot,
         // and to get information on its current status.
         RobotPlayer.rc = rc;
-        Team myTeam = rc.getTeam();
-        Team oppTeam = myTeam.opponent();
-        System.out.println("I'm on team " + myTeam.toString());
+
         turnCount = 0;
 
         System.out.println("I'm a " + rc.getType() + " and I just got created!");
