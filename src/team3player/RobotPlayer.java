@@ -120,7 +120,15 @@ public strictfp class RobotPlayer {
         }
         break; //end Gathering mode
         case Returning:
-        
+          //we need to go to HQ (or other refinery, but that will be for later)
+          if (rc.canDepositSoup(rc.getLocation().directionTo(minerMemory.hq))) {
+            while (rc.getSoupCarrying() > 0)
+            rc.depositSoup(rc.getLocation().directionTo(minerMemory.hq), rc.getSoupCarrying());
+            minerMemory.myMode = MemoryforMiner.Mode.Gathering;
+            Clock.yield();
+          }
+          tryMove(rc.getLocation().directionTo(minerMemory.hq));
+          
         break;
       }
       
