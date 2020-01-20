@@ -115,6 +115,7 @@ public strictfp class RobotPlayer {
         }
         Direction wantToGo = rc.getLocation().directionTo(minerMemory.destination);
         if (rc.canMove(wantToGo)) {
+          //I really need better pathing.
           tryMove(wantToGo);
         }
         break; //end Gathering mode
@@ -202,22 +203,6 @@ public strictfp class RobotPlayer {
      */
     static RobotType randomSpawnedByMiner() {
         return spawnedByMiner[(int) (Math.random() * spawnedByMiner.length)];
-    }
-
-    static boolean tryMove() throws GameActionException {
-        for (Direction dir : directions)
-            if (tryMove(dir))
-                return true;
-        return false;
-        // MapLocation loc = rc.getLocation();
-        // if (loc.x < 10 && loc.x < loc.y)
-        //     return tryMove(Direction.EAST);
-        // else if (loc.x < 10)
-        //     return tryMove(Direction.SOUTH);
-        // else if (loc.x > loc.y)
-        //     return tryMove(Direction.WEST);
-        // else
-        //     return tryMove(Direction.NORTH);
     }
 
     /**
