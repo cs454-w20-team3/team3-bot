@@ -214,10 +214,32 @@ public strictfp class RobotPlayer {
      */
     static boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
-        if (rc.isReady() && rc.canMove(dir)) {
+        // if (rc.isReady() && rc.canMove(dir)) {
+        //     rc.move(dir);
+        //     return true;
+        // } else return false;
+        if (rc.isReady()) {
+          if (rc.canMove(dir)) {
             rc.move(dir);
             return true;
-        } else return false;
+          } else {
+            //why can't we move?
+            //if occupied by another bot
+            //isLocationOccupied(MapLocation loc)
+            //add(Direction direction)
+            if (rc.isLocationOccupied(rc.getLocation().add(dir))) {
+              //another bot is in our way. Dennis Rodman time.
+              if (rc.canMove(dir.rotateRight())) {
+                rc.move(dir.rotateRight());
+                return true;
+              } else if (rc.canMove(dir.rotateLeft())) {
+                rc.move(dir.rotateLeft());
+                return true;
+              }
+            }
+          }
+        }
+        return false;
     }
 
     /**
