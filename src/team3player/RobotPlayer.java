@@ -3,7 +3,10 @@ import battlecode.common.*;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
-
+    static boolean firstTurn=true;
+    static MemoryforMiner minerMemory =null;
+    static Team myTeam = null;
+    static Team oppTeam = null;
     static Direction[] directions = {
         Direction.NORTH,
         Direction.NORTHEAST,
@@ -32,7 +35,7 @@ public strictfp class RobotPlayer {
         Team myTeam = rc.getTeam();
         Team oppTeam = myTeam.opponent();
         turnCount = 0;
-
+        
         while (true) {
             turnCount += 1;
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
@@ -66,6 +69,10 @@ public strictfp class RobotPlayer {
     }
 
     static void runMiner() throws GameActionException {
+        if (firstTurn) {
+          firstTurn=false;
+          minerStartup();
+        }
         tryBlockchain();
         tryMove(randomDirection());
         if (tryMove(randomDirection()))
@@ -225,4 +232,14 @@ public strictfp class RobotPlayer {
         }
         // System.out.println(rc.getRoundMessages(turnCount-1));
     }
+    static void minerStartup() {
+      for (RobotInfo bot : rc.senseNearbyRobots(-1, myTeam)) {
+        if (bot.getType() == RobotType.HQ) {
+          minerMemory.hq= bot.getLocation();
+        }
+      }
+    }
+}
+class MemoryforMiner {
+  public static MapLocation hq=null;
 }
