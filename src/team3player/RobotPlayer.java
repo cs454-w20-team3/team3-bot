@@ -75,7 +75,7 @@ public strictfp class RobotPlayer {
             //this isn't a very good change. just showing how we can use 
             //the HQMemory object
             if (HQMemory.numOfMiners < 11 && tryBuild(RobotType.MINER, dir)) {
-              HQMemory.numOfMiners++;
+              // HQMemory.numOfMiners++;
             }
           }
     }
@@ -100,6 +100,11 @@ public strictfp class RobotPlayer {
         //picking up anything I can along the way
         if (minerMemory.destination == null) {
           setDestinationFSoup();
+        }
+        if (rc.senseSoup(minerMemory.destination) == 0) {
+          minerMemory.myMode = MemoryforMiner.Mode.Explore;
+          minerMemory.destination = null;
+          Clock.yield();
         }
         //if they are full or made it to their destination go home
         if (rc.getSoupCarrying() == 100 || rc.getLocation() == minerMemory.destination) {
@@ -130,6 +135,20 @@ public strictfp class RobotPlayer {
           tryMove(rc.getLocation().directionTo(minerMemory.hq));
           
         break;
+        case Explore:
+        MapLocation[] locs = rc.senseNearbySoup();
+        if (locs.length > 0) {
+          minerMemory.myMode = MemoryforMiner.Mode.Gathering;
+          Clock.yield();
+        }
+          if (minerMemory.exploringDirection == null) {
+            minerMemory.exploringDirection=directions[(int)(Math.random() * 8)];
+          }
+          if (canMoveSafe(minerMemory.exploringDirection)) {
+            rc.move(minerMemory.exploringDirection);
+          } else {
+            minerMemory.exploringDirection=directions[(int)(Math.random() * 8)];
+          }
       }
       
       
@@ -337,6 +356,9 @@ public strictfp class RobotPlayer {
         minerMemory.myRole=MemoryforMiner.Role.Gatherer;
         minerMemory.myMode=MemoryforMiner.Mode.Gathering;
       }
+      //temporarily ignore stats and just make all gatherers
+      minerMemory.myRole=MemoryforMiner.Role.Gatherer;
+      minerMemory.myMode=MemoryforMiner.Mode.Gathering;
     }
     static void HQStartup() {
       HQMemory = new MemoryforHQ();
@@ -349,9 +371,10 @@ class MemoryforMiner {
   public static MapLocation hq=null;
   enum Role { Builder, Gatherer; }
   public Role myRole;
-  enum Mode { Gathering, Returning;}
+  enum Mode { Gathering, Returning, Explore;}
   public Mode myMode = null;
   public MapLocation destination=null;
+  public Direction exploringDirection=null;
   public MemoryforMiner() {}
 }
 class MemoryforHQ {
