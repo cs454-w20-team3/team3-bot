@@ -20,7 +20,7 @@ public strictfp class RobotPlayer {
 
     static int turnCount;
     static MapLocation hqLoc;
-
+    static MapLocation[] soupLocs;
     /**
      * run() is the method that is called when a robot is instantiated in the Battlecode world.
      * If this method returns, the robot dies!
@@ -65,8 +65,10 @@ public strictfp class RobotPlayer {
     }
 
     static void runHQ() throws GameActionException {
+        soupLocs = rc.senseNearbySoup();
         for (Direction dir : directions)
             tryBuild(RobotType.MINER, dir);
+
     }
 
     static void runMiner() throws GameActionException {
@@ -80,25 +82,31 @@ public strictfp class RobotPlayer {
             }
         }
         tryBlockchain();
-        /*
-        tryMove(randomDirection());
-        if (tryMove(randomDirection()))
-            System.out.println("I moved!");
-        // tryBuild(randomSpawnedByMiner(), randomDirection());
-        for (Direction dir : directions)
-            tryBuild(RobotType.FULFILLMENT_CENTER, dir);
-         */
-        for (Direction dir : directions) {
-            if (tryMine(dir))
-                System.out.println("I mined soup! " + rc.getSoupCarrying());
+
+        //try to move to soup location.
+        if (soupLocs != null){
+            Direction dirToSoup = rc.getLocation().directionTo(soupLocs[0]);
+            tryMove(dirToSoup);
+            for (Direction dir : directions) {
+                if (tryMine(dir))
+                    System.out.println("I mined soup! " + rc.getSoupCarrying());
+            }
+        } else {
+            for (Direction dir : directions) {
+                if (tryMine(dir))
+                    System.out.println("I mined soup! " + rc.getSoupCarrying());
+            }
         }
+
         //if miner carries 100 soups go back to headquarter and trying to refine the soup
         if (rc.getSoupCarrying() == 100){
             Direction dirToHQ = rc.getLocation().directionTo(hqLoc);
             tryMove(dirToHQ);
             if (tryRefine(dirToHQ))
                 System.out.println("I refined soup! " + rc.getTeamSoup());
-        } else if (tryMove(randomDirection())) {
+        }
+        //try to move random direction
+        if (tryMove(randomDirection())) {
             System.out.println("I moved");
         }
     }
