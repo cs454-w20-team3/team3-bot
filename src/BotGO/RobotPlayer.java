@@ -72,9 +72,11 @@ public strictfp class RobotPlayer {
     {
         if (hqLoc == null)
         {
+           // Senses near by Robots
            RobotInfo[] robots = rc.senseNearbyRobots();
             for (RobotInfo robot : robots)
             {
+                // Updates the location of HQ if one robots knows it
                 if(robot.type == RobotType.HQ && robot.team == rc.getTeam())
                 {
                     hqLoc = robot.location;
@@ -93,8 +95,8 @@ public strictfp class RobotPlayer {
             if (tryMine(dir))
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
 
-         if (rc.getSoupCarrying() == 100){
-             System.out.println("at the soup limit: "+ rc.getSoupCarrying());
+            // Gets the soup carrying capacity of miners and if it reaches the capacity, makes the miners deposit them at HQ
+         if (rc.getSoupCarrying() == RobotType.MINER .soupLimit){
              Direction dirToHQ = rc.getLocation().directionTo(hqLoc);
              if (tryMove (dirToHQ)) {
                  System.out.println("Moved towards HQ");
