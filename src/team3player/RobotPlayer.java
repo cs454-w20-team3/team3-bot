@@ -3,8 +3,10 @@ import battlecode.common.*;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
-    static boolean firstTurn=true;
-    static MemoryforMiner minerMemory =null;
+    static boolean firstTurn = true;
+    static MemoryforMiner minerMemory = null;
+    static MemoryforHQ HQMemory = null;
+    static MemoryforRefinery RefineryMemory = null;
     static Team myTeam = null;
     static Team oppTeam = null;
     static Direction[] directions = {
@@ -64,8 +66,18 @@ public strictfp class RobotPlayer {
     }
 
     static void runHQ() throws GameActionException {
-        for (Direction dir : directions)
-            tryBuild(RobotType.MINER, dir);
+      if (firstTurn) {
+        firstTurn = false;
+        HQStartup();
+      }
+        for (Direction dir : directions) {
+            //do we have less than 11 miners? Then try to build some more
+            //this isn't a very good change. just showing how we can use 
+            //the HQMemory object
+            if (HQMemory.numOfMiners < 11 && tryBuild(RobotType.MINER, dir)) {
+              HQMemory.numOfMiners++;
+            }
+          }
     }
 
     static void runMiner() throws GameActionException {
@@ -89,6 +101,10 @@ public strictfp class RobotPlayer {
 
     static void runRefinery() throws GameActionException {
         // System.out.println("Pollution: " + rc.sensePollution(rc.getLocation()));
+        if (firstTurn) {
+          firstTurn = false;
+          RefineryStartup();
+        }
     }
 
     static void runVaporator() throws GameActionException {
@@ -233,13 +249,32 @@ public strictfp class RobotPlayer {
         // System.out.println(rc.getRoundMessages(turnCount-1));
     }
     static void minerStartup() {
+      minerMemory = new MemoryforMiner();
       for (RobotInfo bot : rc.senseNearbyRobots(-1, myTeam)) {
+        //loop through every friendly bot in my range
         if (bot.getType() == RobotType.HQ) {
+          //if this bot is my HQ save its location
           minerMemory.hq= bot.getLocation();
         }
       }
     }
+    static void HQStartup() {
+      HQMemory = new MemoryforHQ();
+    }
+    static void RefineryStartup() {
+      RefineryMemory = new MemoryforRefinery();
+    }
 }
 class MemoryforMiner {
   public static MapLocation hq=null;
+  public MemoryforMiner() {}
+}
+class MemoryforHQ {
+  public MemoryforHQ() {
+    numOfMiners=0;
+  }
+  public int numOfMiners;
+}
+class MemoryforRefinery {
+  
 }
