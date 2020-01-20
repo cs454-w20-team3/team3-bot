@@ -93,24 +93,36 @@ public strictfp class RobotPlayer {
         }
     }
     static void runMinerGather() throws GameActionException {
-      //I need to go get soup
-      //lets scan for the furthest soup and go that direction
-      //picking up anything I can along the way
-      if (minerMemory.destination == null) {
-        setDestinationFSoup();
-      }
-      //if they are full or made it to their destination go home
-      //boolean canMineSoup(Direction dir)
-      for (Direction dir : directions) {
-        if (rc.canMineSoup(dir)) {
-          if (tryMine(dir))
-          System.out.println("I have " + rc.getSoupCarrying() + " soup");
+      switch (minerMemory.myMode) {
+        case Gathering:
+        //I need to go get soup
+        //lets scan for the furthest soup and go that direction
+        //picking up anything I can along the way
+        if (minerMemory.destination == null) {
+          setDestinationFSoup();
         }
+        //if they are full or made it to their destination go home
+        if (rc.getSoupCarrying() == 100 || rc.getLocation() == minerMemory.destination) {
+          //we need to go back home 
+          minerMemory.myMode = MemoryforMiner.Mode.Returning;
+        }
+        //boolean canMineSoup(Direction dir)
+        for (Direction dir : directions) {
+          if (rc.canMineSoup(dir)) {
+            if (tryMine(dir))
+            System.out.println("I have " + rc.getSoupCarrying() + " soup");
+          }
+        }
+        Direction wantToGo = rc.getLocation().directionTo(minerMemory.destination);
+        if (rc.canMove(wantToGo)) {
+          tryMove(wantToGo);
+        }
+        break; //end Gathering mode
+        case Returning:
+        
+        break;
       }
-      Direction wantToGo = rc.getLocation().directionTo(minerMemory.destination);
-      if (rc.canMove(wantToGo)) {
-        tryMove(wantToGo);
-      }
+      
       
     }
     static void setDestinationFSoup() {
@@ -297,6 +309,7 @@ public strictfp class RobotPlayer {
         minerMemory.myRole=MemoryforMiner.Role.Builder;
       } else {
         minerMemory.myRole=MemoryforMiner.Role.Gatherer;
+        minerMemory.myMode=MemoryforMiner.Mode.Gathering;
       }
     }
     static void HQStartup() {
@@ -310,6 +323,8 @@ class MemoryforMiner {
   public static MapLocation hq=null;
   enum Role { Builder, Gatherer; }
   public Role myRole;
+  enum Mode { Gathering, Returning;}
+  public Mode myMode = null;
   public MapLocation destination=null;
   public MemoryforMiner() {}
 }
