@@ -85,18 +85,48 @@ public strictfp class RobotPlayer {
           firstTurn=false;
           minerStartup();
         }
-        tryBlockchain();
-        tryMove(randomDirection());
-        if (tryMove(randomDirection()))
-        // tryBuild(randomSpawnedByMiner(), randomDirection());
-        for (Direction dir : directions)
-            tryBuild(RobotType.FULFILLMENT_CENTER, dir);
-        for (Direction dir : directions)
-            if (tryRefine(dir))
-                System.out.println("I refined soup! " + rc.getTeamSoup());
-        for (Direction dir : directions)
-            if (tryMine(dir))
-                System.out.println("I mined soup! " + rc.getSoupCarrying());
+        //What does a miner/worker need to do?
+        //is this a builder or a gatherer?
+        switch (minerMemory.myRole) {
+        case Gatherer: runMinerGather(); break;  
+        case Builder: runMinerBuilder(); break;
+        }
+    }
+    static void runMinerGather() throws GameActionException {
+      //I need to go get soup
+      //lets scan for the furthest soup and go that direction
+      //picking up anything I can along the way
+      if (minerMemory.destination == null) {
+        setDestinationFSoup();
+      }
+      //if they are full or made it to their destination go home
+      //boolean canMineSoup(Direction dir)
+      for (Direction dir : directions) {
+        if (rc.canMineSoup(dir)) {
+          if (tryMine(dir))
+          System.out.println("I have " + rc.getSoupCarrying() + " soup");
+        }
+      }
+      Direction wantToGo = rc.getLocation().directionTo(minerMemory.destination);
+      if (rc.canMove(wantToGo)) {
+        tryMove(wantToGo);
+      }
+      
+    }
+    static void setDestinationFSoup() {
+      MapLocation[] soupLocations = rc.senseNearbySoup();
+      minerMemory.destination = soupLocations[0];
+      int max = rc.getLocation().distanceSquaredTo(minerMemory.destination);
+      for (MapLocation soupLoc : soupLocations) {
+        int distance = rc.getLocation().distanceSquaredTo(soupLoc);
+        if (distance > max) {
+          max = distance;
+          minerMemory.destination = soupLoc;
+        }
+      }
+    }
+    static void runMinerBuilder() {
+      
     }
 
     static void runRefinery() throws GameActionException {
@@ -257,6 +287,17 @@ public strictfp class RobotPlayer {
           minerMemory.hq= bot.getLocation();
         }
       }
+      //since ID is a random value 
+      //although I don't know its distrobution :-(
+      //I can use it to assign roles to bot probablistically
+      if (rc.getID() % 10 < 2) {
+        //ID is from 10000 to 32000 I think. So, mod 10 is
+        //0,1,2,3,4,5,6,7,8,9. less than 2 is 0 and 1
+        //this all basically means that %20 of miner get this role
+        minerMemory.myRole=MemoryforMiner.Role.Builder;
+      } else {
+        minerMemory.myRole=MemoryforMiner.Role.Gatherer;
+      }
     }
     static void HQStartup() {
       HQMemory = new MemoryforHQ();
@@ -267,6 +308,9 @@ public strictfp class RobotPlayer {
 }
 class MemoryforMiner {
   public static MapLocation hq=null;
+  enum Role { Builder, Gatherer; }
+  public Role myRole;
+  public MapLocation destination=null;
   public MemoryforMiner() {}
 }
 class MemoryforHQ {
