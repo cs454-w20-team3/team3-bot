@@ -68,13 +68,19 @@ public strictfp class RobotPlayer {
             tryBuild(RobotType.MINER, dir);
     }
 
-    static void runMiner() throws GameActionException {
-        if (hqLoc == null) {
+    static void runMiner() throws GameActionException
+    {
+        if (hqLoc == null)
+        {
            RobotInfo[] robots = rc.senseNearbyRobots();
-            for (RobotInfo robot : robots) {
-                if(robot.type == RobotType.HQ && robot.team == rc.getTeam()){
+            for (RobotInfo robot : robots)
+            {
+                if(robot.type == RobotType.HQ && robot.team == rc.getTeam())
+                {
                     hqLoc = robot.location;
-                } } }
+                }
+            }
+        }
 
         tryBlockchain();
         // tryBuild(randomSpawnedByMiner(), randomDirection());
