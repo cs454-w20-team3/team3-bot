@@ -222,7 +222,7 @@ public strictfp class RobotPlayer {
      */
     static boolean tryMove(Direction dir) throws GameActionException {
         if (rc.isReady()) {
-          if (rc.canMove(dir)) {
+          if (canMoveSafe(dir)) {
             rc.move(dir);
             return true;
           } else {
@@ -232,17 +232,33 @@ public strictfp class RobotPlayer {
             //add(Direction direction)
             if (rc.isLocationOccupied(rc.getLocation().add(dir))) {
               //another bot is in our way. Dennis Rodman time.
-              if (rc.canMove(dir.rotateRight())) {
+              //can we move closer to our target but to the slight right?
+              if (canMoveSafe(dir.rotateRight())) {
                 rc.move(dir.rotateRight());
                 return true;
-              } else if (rc.canMove(dir.rotateLeft())) {
+                //closer and slight left?
+              } else if (canMoveSafe(dir.rotateLeft())) {
                 rc.move(dir.rotateLeft());
+                return true;
+              //move to the right?
+              } else if (canMoveSafe(dir.rotateRight().rotateRight())) {
+                rc.move(dir.rotateRight().rotateRight());
+                return true;
+                //move to the left?
+              }else if (canMoveSafe(dir.rotateLeft().rotateLeft())) {
+                rc.move(dir.rotateLeft().rotateLeft());
                 return true;
               }
             }
           }
         }
         return false;
+    }
+    static boolean canMoveSafe(Direction dir) throws GameActionException {
+      if (rc.canMove(dir) && !rc.senseFlooding(rc.getLocation().add(dir))) {
+        return true;
+      }
+      return false;
     }
 
     /**
