@@ -188,6 +188,7 @@ public strictfp class RobotPlayer {
             return true;
         } else return false;
     }
+    //this is my other comment!
 
     /**
      * Attempts to mine soup in a given direction.
