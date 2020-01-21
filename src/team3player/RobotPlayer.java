@@ -1,6 +1,6 @@
 package team3player;
 import battlecode.common.*;
-
+//I made a comment
 public strictfp class RobotPlayer {
     static RobotController rc;
 
