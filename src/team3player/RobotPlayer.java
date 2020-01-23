@@ -108,10 +108,6 @@ public strictfp class RobotPlayer {
         } else {
             System.out.println("Minder couldn't find the soup location");
             tryMove(randomDirection());
-            for (Direction dir : directions) {
-                if (tryMine(dir))
-                    System.out.println("I mined soup! " + rc.getSoupCarrying());
-            }
         }
 
         if (rc.getSoupCarrying() == RobotType.MINER.soupLimit){
