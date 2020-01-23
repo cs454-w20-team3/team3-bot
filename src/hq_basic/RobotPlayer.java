@@ -3,6 +3,12 @@ import battlecode.common.*;
 
 public strictfp class RobotPlayer {
     static RobotController rc;
+    ///memory section
+    static MemoryForHQ HQMemory = null;
+    static MemoryForRefinery RefineryMemory = null;
+    static MemoryforMiner MinerMemory = null;
+    //simple var to control execution for first turn logic
+    static boolean firstTurn = true;
 
     static Direction[] directions = {
         Direction.NORTH,
@@ -63,13 +69,37 @@ public strictfp class RobotPlayer {
             }
         }
     }
+    static void MinerStartup() {
+        //please add any logic for is only executed on the bots first turn here
+        MinerMemory = new MemoryforMiner();
+        for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
+            if (bot.getType() == RobotType.HQ) {
+                MinerMemory.HQ = bot.getLocation();
+            }
+        }
+    }
+
 
     static void runHQ() throws GameActionException {
-        for (Direction dir : directions)
-            tryBuild(RobotType.MINER, dir);
+        if (firstTurn) {
+            firstTurn = false;
+            HQMemory = new MemoryForHQ();
+        }
+        for (Direction dir : directions) {
+            if (HQMemory.numOfMiners < 5) {
+                if (tryBuild(RobotType.MINER, dir))
+                    HQMemory.numOfMiners++;
+                else
+                    System.out.println("HQ could not build miner");
+            }
+        }
     }
 
     static void runMiner() throws GameActionException {
+        if (firstTurn) {
+            firstTurn = false;
+            MinerStartup();
+        }
         tryBlockchain();
         tryMove(randomDirection());
         if (tryMove(randomDirection()))
@@ -86,6 +116,10 @@ public strictfp class RobotPlayer {
     }
 
     static void runRefinery() throws GameActionException {
+        if (firstTurn) {
+            firstTurn = false;
+            RefineryMemory = new MemoryForRefinery();
+        }
         // System.out.println("Pollution: " + rc.sensePollution(rc.getLocation()));
     }
 
@@ -231,4 +265,16 @@ public strictfp class RobotPlayer {
         }
         // System.out.println(rc.getRoundMessages(turnCount-1));
     }
+}
+
+class MemoryForHQ {
+     int numOfMiners = 0;
+}
+
+class MemoryforMiner {
+     MapLocation HQ = null;
+}
+
+class MemoryForRefinery {
+
 }
