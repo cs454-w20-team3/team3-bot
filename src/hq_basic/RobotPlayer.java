@@ -86,6 +86,8 @@ public strictfp class RobotPlayer {
             HQMemory = new MemoryForHQ();
         }
         for (Direction dir : directions) {
+            tryRefine(dir);
+            if (rc.senseNearbyRobots(-1, Team opponent()))
             if (HQMemory.numOfMiners < 5) {
                 if (tryBuild(RobotType.MINER, dir))
                     HQMemory.numOfMiners++;
@@ -268,7 +270,7 @@ public strictfp class RobotPlayer {
 }
 
 class MemoryForHQ {
-     int numOfMiners = 0;
+    int numOfMiners = 0;
 }
 
 class MemoryforMiner {
