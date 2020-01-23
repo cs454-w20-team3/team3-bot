@@ -11,14 +11,14 @@ public strictfp class RobotPlayer {
     static boolean firstTurn = true;
 
     static Direction[] directions = {
-        Direction.NORTH,
-        Direction.NORTHEAST,
-        Direction.EAST,
-        Direction.SOUTHEAST,
-        Direction.SOUTH,
-        Direction.SOUTHWEST,
-        Direction.WEST,
-        Direction.NORTHWEST
+            Direction.NORTH,
+            Direction.NORTHEAST,
+            Direction.EAST,
+            Direction.SOUTHEAST,
+            Direction.SOUTH,
+            Direction.SOUTHWEST,
+            Direction.WEST,
+            Direction.NORTHWEST
     };
     static RobotType[] spawnedByMiner = {RobotType.REFINERY, RobotType.VAPORATOR, RobotType.DESIGN_SCHOOL,
             RobotType.FULFILLMENT_CENTER, RobotType.NET_GUN};
@@ -74,7 +74,8 @@ public strictfp class RobotPlayer {
         MinerMemory = new MemoryforMiner();
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.HQ) {
-                MinerMemory.HQ = bot.getLocation();
+                MinerMemory.hqLoc = bot.getLocation();
+                System.out.println("Found HQ Location: " + MinerMemory.hqLoc.x + ":" + MinerMemory.hqLoc.y);
             }
         }
     }
@@ -94,19 +95,34 @@ public strictfp class RobotPlayer {
             firstTurn = false;
             MinerStartup();
         }
-        tryBlockchain();
-        tryMove(randomDirection());
-        if (tryMove(randomDirection()))
-            System.out.println("I moved!");
-        // tryBuild(randomSpawnedByMiner(), randomDirection());
-        for (Direction dir : directions)
-            tryBuild(RobotType.FULFILLMENT_CENTER, dir);
-        for (Direction dir : directions)
-            if (tryRefine(dir))
-                System.out.println("I refined soup! " + rc.getTeamSoup());
-        for (Direction dir : directions)
-            if (tryMine(dir))
+
+        MapLocation[] soupLocs = rc.senseNearbySoup();
+        if (soupLocs.length != 0) {
+            System.out.println("Miner found the soup location");
+            int soupLocIdx = (int)(soupLocs.length * Math.random());
+            System.out.println("soupLoc's index: " + soupLocIdx);
+            Direction dirToSoup = rc.getLocation().directionTo(soupLocs[soupLocIdx]);
+            tryMove(dirToSoup);
+            if (tryMine(Direction.CENTER))
                 System.out.println("I mined soup! " + rc.getSoupCarrying());
+        } else {
+            System.out.println("Minder couldn't find the soup location");
+            tryMove(randomDirection());
+            for (Direction dir : directions) {
+                if (tryMine(dir))
+                    System.out.println("I mined soup! " + rc.getSoupCarrying());
+            }
+        }
+
+        if (rc.getSoupCarrying() == RobotType.MINER.soupLimit){
+            Direction dirToHQ = rc.getLocation().directionTo(MinerMemory.hqLoc);
+            if(tryMove(dirToHQ))
+                System.out.println("Move to HQ");
+            else
+                System.out.println("Can't move to HQ");
+            if (tryRefine(Direction.CENTER))
+                System.out.println("I refined soup! " + rc.getTeamSoup());
+        }
     }
 
     static void runRefinery() throws GameActionException {
@@ -227,6 +243,10 @@ public strictfp class RobotPlayer {
      * @throws GameActionException
      */
     static boolean tryMine(Direction dir) throws GameActionException {
+        System.out.println("Miner ready? " + rc.isReady());
+        System.out.println("Miner can mine soup? " + rc.canMineSoup(dir));
+        System.out.println("Reached soup limit? " + rc.getSoupCarrying() + ":" + rc.getType().soupLimit);
+        System.out.println("Remain cooldown turns? " + rc.getCooldownTurns());
         if (rc.isReady() && rc.canMineSoup(dir)) {
             rc.mineSoup(dir);
             return true;
@@ -241,6 +261,9 @@ public strictfp class RobotPlayer {
      * @throws GameActionException
      */
     static boolean tryRefine(Direction dir) throws GameActionException {
+        System.out.println("tryRefine:Miner ready? " + rc.isReady());
+        System.out.println("tryRefine:Miner can deposit soup? " + rc.canDepositSoup(dir));
+        System.out.println("tryRefine: Remain cooldown turns? " + rc.getCooldownTurns());
         if (rc.isReady() && rc.canDepositSoup(dir)) {
             rc.depositSoup(dir, rc.getSoupCarrying());
             return true;
@@ -261,10 +284,10 @@ public strictfp class RobotPlayer {
     }
 }
 class MemoryForHQ {
-     int numOfMiners = 0;
+    int numOfMiners = 0;
 }
 class MemoryforMiner {
-     MapLocation HQ = null;
+    MapLocation hqLoc = null;
 }
 class MemoryForRefinery {
 
