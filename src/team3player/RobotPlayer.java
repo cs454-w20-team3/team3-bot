@@ -54,7 +54,7 @@ public strictfp class RobotPlayer {
                         case NET_GUN:            thisRobot = new NetGunRobot(rc);       break;
                     }
                 }
-                //then the instead of all the runMiner, runHQ... functions we just run thisRobot.myTurn()
+                //then instead of all the runMiner, runHQ... functions we just run thisRobot.myTurn()
                 thisRobot.myTurn();
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
