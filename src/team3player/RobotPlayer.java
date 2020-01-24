@@ -1,14 +1,11 @@
 package team3player;
 import battlecode.common.*;
 
+
 public strictfp class RobotPlayer {
     static RobotController rc;
-    ///memory section
-    static MemoryForHQ HQMemory = null;
-    static MemoryForRefinery RefineryMemory = null;
-    static MemoryforMiner MinerMemory = null;
-    //simple var to control execution for first turn logic
-    static boolean firstTurn = true;
+    //this points the object that will be the logic and memory for the current robot
+    static RobotFramework thisRobot = null;
 
     static Direction[] directions = {
             Direction.NORTH,
@@ -35,30 +32,30 @@ public strictfp class RobotPlayer {
         // This is the RobotController object. You use it to perform actions from this robot,
         // and to get information on its current status.
         RobotPlayer.rc = rc;
-        Team myTeam = rc.getTeam();
-        Team oppTeam = myTeam.opponent();
-        System.out.println("I'm on team " + myTeam.toString());
         turnCount = 0;
 
-        System.out.println("I'm a " + rc.getType() + " and I just got created!");
         while (true) {
             turnCount += 1;
             // Try/catch blocks stop unhandled exceptions, which cause your robot to explode
             try {
-                // Here, we've separated the controls into a different method for each RobotType.
-                // You can add the missing ones or rewrite this into your own control structure.
-                System.out.println("I'm a " + rc.getType() + "! Location " + rc.getLocation());
-                switch (rc.getType()) {
-                    case HQ:                 runHQ();                break;
-                    case MINER:              runMiner();             break;
-                    case REFINERY:           runRefinery();          break;
-                    case VAPORATOR:          runVaporator();         break;
-                    case DESIGN_SCHOOL:      runDesignSchool();      break;
-                    case FULFILLMENT_CENTER: runFulfillmentCenter(); break;
-                    case LANDSCAPER:         runLandscaper();        break;
-                    case DELIVERY_DRONE:     runDeliveryDrone();     break;
-                    case NET_GUN:            runNetGun();            break;
+
+                //this will only execute on the first turn of each robot
+                //we create a robot class of the correct type
+                if (turnCount == 1) {                   
+                    switch (rc.getType()) {
+                        case HQ:                 thisRobot = new HQRobot(rc);           break;
+                        case MINER:              thisRobot = new MinerRobot(rc);        break;
+                        case REFINERY:           thisRobot = new RefineryRobot(rc);     break;
+                        case VAPORATOR:          thisRobot = new VaporatorRobot(rc);    break;
+                        case DESIGN_SCHOOL:      thisRobot = new DesignSchoolRobot(rc); break;
+                        case FULFILLMENT_CENTER: thisRobot = new FCRobot(rc);           break;
+                        case LANDSCAPER:         thisRobot = new LandscaperRobot(rc);   break;
+                        case DELIVERY_DRONE:     thisRobot = new DroneRobot(rc);        break;
+                        case NET_GUN:            thisRobot = new NetGunRobot(rc);       break;
+                    }
                 }
+                //then the instead of all the runMiner, runHQ... functions we just run thisRobot.myTurn()
+                thisRobot.myTurn();
 
                 // Clock.yield() makes the robot wait until the next turn, then it will perform this loop again
                 Clock.yield();
@@ -68,117 +65,6 @@ public strictfp class RobotPlayer {
                 e.printStackTrace();
             }
         }
-    }
-    static void MinerStartup() {
-        //please add any logic for is only executed on the bots first turn here
-        MinerMemory = new MemoryforMiner();
-        for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
-            if (bot.getType() == RobotType.HQ) {
-                MinerMemory.hqLoc = bot.getLocation();
-                System.out.println("Found HQ Location: " + MinerMemory.hqLoc.x + ":" + MinerMemory.hqLoc.y);
-            }
-        }
-    }
-
-
-    static void runHQ() throws GameActionException {
-        if (firstTurn) {
-            firstTurn = false;
-            HQMemory = new team3player.MemoryForHQ();
-        }
-        for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
-            if (rc.canShootUnit(bot.ID)) {
-                runNetGun();
-            }
-            else
-                System.out.println("cannot shoot bot");
-        }
-        for (Direction dir : directions) {
-            tryRefine(dir);
-            if (HQMemory.numOfMiners < 5) {
-                if (tryBuild(RobotType.MINER, dir))
-                    HQMemory.numOfMiners++;
-                else
-                    System.out.println("HQ could not build miner");
-            }
-        }
-    }
-
-    static void runMiner() throws GameActionException {
-        if (firstTurn) {
-            firstTurn = false;
-            MinerStartup();
-        }
-
-        MapLocation[] soupLocs = rc.senseNearbySoup();
-        if (soupLocs.length != 0) {
-            System.out.println("Miner found the soup location");
-            int soupLocIdx = (int)(soupLocs.length * Math.random());
-            System.out.println("soupLoc's index: " + soupLocIdx);
-            Direction dirToSoup = rc.getLocation().directionTo(soupLocs[soupLocIdx]);
-            tryMove(dirToSoup);
-            if (tryMine(Direction.CENTER))
-                System.out.println("I mined soup! " + rc.getSoupCarrying());
-        } else {
-            System.out.println("Minder couldn't find the soup location");
-            tryMove(randomDirection());
-        }
-
-        if (rc.getSoupCarrying() == RobotType.MINER.soupLimit){
-            Direction dirToHQ = rc.getLocation().directionTo(MinerMemory.hqLoc);
-            if(tryMove(dirToHQ))
-                System.out.println("Move to HQ");
-            else
-                System.out.println("Can't move to HQ");
-            if (tryRefine(Direction.CENTER))
-                System.out.println("I refined soup! " + rc.getTeamSoup());
-        }
-    }
-
-    static void runRefinery() throws GameActionException {
-        if (firstTurn) {
-            firstTurn = false;
-            RefineryMemory = new MemoryForRefinery();
-        }
-        // System.out.println("Pollution: " + rc.sensePollution(rc.getLocation()));
-    }
-
-    static void runVaporator() throws GameActionException {
-
-    }
-
-    static void runDesignSchool() throws GameActionException {
-
-    }
-
-    static void runFulfillmentCenter() throws GameActionException {
-        for (Direction dir : directions)
-            tryBuild(RobotType.DELIVERY_DRONE, dir);
-    }
-
-    static void runLandscaper() throws GameActionException {
-
-    }
-
-    static void runDeliveryDrone() throws GameActionException {
-        Team enemy = rc.getTeam().opponent();
-        if (!rc.isCurrentlyHoldingUnit()) {
-            // See if there are any enemy robots within capturing range
-            RobotInfo[] robots = rc.senseNearbyRobots(GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED, enemy);
-
-            if (robots.length > 0) {
-                // Pick up a first robot within range
-                rc.pickUpUnit(robots[0].getID());
-                System.out.println("I picked up " + robots[0].getID() + "!");
-            }
-        } else {
-            // No close robots, so search for robots within sight radius
-            tryMove(randomDirection());
-        }
-    }
-
-    static void runNetGun() throws GameActionException {
-
     }
 
     /**
@@ -204,15 +90,6 @@ public strictfp class RobotPlayer {
             if (tryMove(dir))
                 return true;
         return false;
-        // MapLocation loc = rc.getLocation();
-        // if (loc.x < 10 && loc.x < loc.y)
-        //     return tryMove(Direction.EAST);
-        // else if (loc.x < 10)
-        //     return tryMove(Direction.SOUTH);
-        // else if (loc.x > loc.y)
-        //     return tryMove(Direction.WEST);
-        // else
-        //     return tryMove(Direction.NORTH);
     }
 
     /**
@@ -292,13 +169,4 @@ public strictfp class RobotPlayer {
         }
         // System.out.println(rc.getRoundMessages(turnCount-1));
     }
-}
-class MemoryForHQ {
-    int numOfMiners = 0;
-}
-class MemoryforMiner {
-    MapLocation hqLoc = null;
-}
-class MemoryForRefinery {
-
 }
