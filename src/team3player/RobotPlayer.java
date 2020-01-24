@@ -90,6 +90,8 @@ public strictfp class RobotPlayer {
             if (rc.canShootUnit(bot.ID)) {
                 runNetGun();
             }
+            else
+                System.out.println("cannot shoot bot");
         }
         for (Direction dir : directions) {
             tryRefine(dir);
