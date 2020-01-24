@@ -84,10 +84,22 @@ public strictfp class RobotPlayer {
     static void runHQ() throws GameActionException {
         if (firstTurn) {
             firstTurn = false;
-            HQMemory = new MemoryForHQ();
+            HQMemory = new team3player.MemoryForHQ();
         }
-        for (Direction dir : directions)
-            tryBuild(RobotType.MINER, dir);
+        for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
+            if (rc.canShootUnit(bot.ID)) {
+                runNetGun();
+            }
+        }
+        for (Direction dir : directions) {
+            tryRefine(dir);
+            if (HQMemory.numOfMiners < 5) {
+                if (tryBuild(RobotType.MINER, dir))
+                    HQMemory.numOfMiners++;
+                else
+                    System.out.println("HQ could not build miner");
+            }
+        }
     }
 
     static void runMiner() throws GameActionException {

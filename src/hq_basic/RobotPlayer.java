@@ -85,9 +85,13 @@ public strictfp class RobotPlayer {
             firstTurn = false;
             HQMemory = new MemoryForHQ();
         }
+        for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
+            if (rc.canShootUnit(bot.ID)) {
+                runNetGun();
+            }
+        }
         for (Direction dir : directions) {
             tryRefine(dir);
-            if (rc.senseNearbyRobots(-1, Team opponent()))
             if (HQMemory.numOfMiners < 5) {
                 if (tryBuild(RobotType.MINER, dir))
                     HQMemory.numOfMiners++;
