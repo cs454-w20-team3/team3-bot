@@ -35,6 +35,11 @@ public abstract class RobotFramework {
                 return true;
         return false;
     }
+    void waitforcooldown() {
+        while (!rc.isReady()) {
+            Clock.yield();
+        }
+    }
 
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
