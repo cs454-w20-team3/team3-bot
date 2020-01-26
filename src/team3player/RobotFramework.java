@@ -43,15 +43,4 @@ public abstract class RobotFramework {
             return true;
         } else return false;
     }
-
-    boolean tryMine(Direction dir) throws GameActionException {
-        System.out.println("Miner ready? " + rc.isReady());
-        System.out.println("Miner can mine soup? " + rc.canMineSoup(dir));
-        System.out.println("Reached soup limit? " + rc.getSoupCarrying() + ":" + rc.getType().soupLimit);
-        System.out.println("Remain cooldown turns? " + rc.getCooldownTurns());
-        if (rc.isReady() && rc.canMineSoup(dir)) {
-            rc.mineSoup(dir);
-            return true;
-        } else return false;
-    }
 }
