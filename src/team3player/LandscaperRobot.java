@@ -3,6 +3,7 @@ import battlecode.common.*;
 class LandscaperRobot extends RobotFramework {
     MapLocation hqLoc = null;
     MapLocation dsLoc = null;
+    Direction mySide = null;
     LandscaperRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
@@ -24,8 +25,22 @@ class LandscaperRobot extends RobotFramework {
             buildWall();
         }
     }
-    public void buildWall() {
-
+    public void buildWall() throws GameActionException{
+        if (mySide == null) {
+            //we need to find an open side to start building
+            Direction[] sides = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+            int side =0;
+            while (mySide == null) {
+                waitforcooldown();
+                if (tryToGoTo(hqLoc.add(sides[side % 4]), 6)) {
+                    mySide = sides[side];
+                } else {
+                    side++;
+                }
+            }
+        }
+        //hopefully the landscaper has found a vacant side to start working on
+        //start digging!
     }
     public void searchForHQ()throws GameActionException {
         boolean clockwise = true;
