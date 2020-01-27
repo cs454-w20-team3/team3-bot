@@ -3,15 +3,38 @@ import battlecode.common.*;
 class MinerRobot extends RobotFramework {
     MapLocation hqLoc;
 
+    int OurRobot[];
+    int BuildTarget = 5;
+    int GatherTarget = 1;
+    int RobotPoint = 0;
+
     MinerRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
         super(rc_);
         //on robot creation/start up code goes here
+
+        // Avi Code Starts
+
+        RobotPoint += 1 ;
+
         System.out.println("Miner:" + rc.getID() + " initialization");
 
-        // Avi Code here
+        OurRobot[RobotPoint] = rc.getID();
 
+        if ( RobotPoint % BuildTarget == 0 ) {
+            buildMode(); }
+
+        else if ( RobotPoint % GatherTarget == 0 ) {
+            gatherMode(); }
+
+
+        if ( RobotPoint % 6 == 0 && BuildTarget > 1) {
+            BuildTarget -= 1;
+            GatherTarget += 1;
+        }
+
+        // Avi Code Ends
 
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.HQ) {
@@ -22,10 +45,12 @@ class MinerRobot extends RobotFramework {
     }
 
     public void gatherMode() {
+        System.out.println("I am Gatherer");
 
     }
 
     public void buildMode() {
+        System.out.println("I am Builder");
 
     }
 
