@@ -2,6 +2,7 @@ package team3player;
 import battlecode.common.*;
 class HQRobot extends RobotFramework {
     int numOfMiners = 0;
+    final int maxNumOfMiners = 10;
 
     HQRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
@@ -20,7 +21,7 @@ class HQRobot extends RobotFramework {
                 System.out.println("cannot shoot bot");
         }
         for (Direction dir : directions) {
-            if (numOfMiners < 10) {
+            if (numOfMiners < maxNumOfMiners) {
                 if (tryBuild(RobotType.MINER, dir))
                     numOfMiners++;
                 else

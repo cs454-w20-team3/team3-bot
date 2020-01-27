@@ -3,7 +3,8 @@ import battlecode.common.*;
 class DesignSchoolRobot extends RobotFramework {
     MapLocation dsLoc;
     int numOfLandscapers = 0;
-    
+    final int maxNumOfLandscapers = 5;
+
     DesignSchoolRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
@@ -18,7 +19,7 @@ class DesignSchoolRobot extends RobotFramework {
         System.out.println("Design School doing stuff");
         waitforcooldown();
         for (Direction dir : directions) {
-            if (numOfLandscapers < 5) {
+            if (numOfLandscapers < maxNumOfLandscapers) {
                 if (tryBuild(RobotType.LANDSCAPER, dir))
                     numOfLandscapers++;
                 else
