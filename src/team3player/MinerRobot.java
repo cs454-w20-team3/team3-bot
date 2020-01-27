@@ -28,6 +28,10 @@ class MinerRobot extends RobotFramework {
         else if ( RobotPoint % GatherTarget == 0 ) {
             gatherMode(); }
 
+        else {
+            buildMode();
+        }
+
 
         if ( RobotPoint % 6 == 0 && BuildTarget > 1) {
             BuildTarget -= 1;
