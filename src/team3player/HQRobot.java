@@ -19,7 +19,7 @@ class HQRobot extends RobotFramework {
                 System.out.println("cannot shoot bot");
         }
         for (Direction dir : directions) {
-            if (numOfMiners < 5) {
+            if (numOfMiners < 10) {
                 if (tryBuild(RobotType.MINER, dir))
                     numOfMiners++;
                 else
