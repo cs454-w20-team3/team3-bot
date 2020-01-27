@@ -40,6 +40,30 @@ public abstract class RobotFramework {
             Clock.yield();
         }
     }
+    boolean tryToGoTo(MapLocation target, int failures) throws GameActionException {
+
+        while (failures >= 0) {
+            waitforcooldown();
+            if (rc.canMove(rc.getLocation().directionTo(target))) {
+                //move towards target
+                rc.move(rc.getLocation().directionTo(target));
+            } else if (rc.canMove(rc.getLocation().directionTo(target).rotateLeft())) {
+                //maybe something is in the path
+                rc.move(rc.getLocation().directionTo(target).rotateLeft());
+            } else if (rc.canMove(rc.getLocation().directionTo(target).rotateRight())) {
+                //the other way around maybe...
+                rc.move(rc.getLocation().directionTo(target).rotateRight());
+            }
+            else {
+                failures--;
+            }
+        }    
+        if (rc.getLocation() == target) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     boolean canMoveSafe(Direction dir) throws GameActionException {
         if (rc.canMove(dir) && rc.senseFlooding(rc.getLocation().add(dir))) {
