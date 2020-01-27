@@ -64,6 +64,7 @@ public abstract class RobotFramework {
             return false;
         }
     }
+<<<<<<< HEAD
 
     boolean canMoveSafe(Direction dir) throws GameActionException {
         if (rc.canMove(dir) && rc.senseFlooding(rc.getLocation().add(dir))) {
@@ -71,6 +72,8 @@ public abstract class RobotFramework {
         }
         return false;
     }
+=======
+>>>>>>> 107c7853f3a4f63cccd57109dd64a471072a12e8
 
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
