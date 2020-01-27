@@ -11,7 +11,7 @@ class DesignSchoolRobot extends RobotFramework {
         //on robot creation/start up code goes here
         System.out.println("Design School initialization");
         dsLoc = rc.getLocation();
-        System.out.println("I'm located at ",dsLoc);
+        System.out.println("I'm located at " +dsLoc.x + ":" + dsLoc.y);
     }
     public void myTurn()throws GameActionException {
         //logic to be run on every turn goes here
