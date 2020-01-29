@@ -12,7 +12,9 @@ class MinerRobot extends RobotFramework {
         super(rc_);
         //on robot creation/start up code goes here
         System.out.println("Miner:" + rc.getID() + " initialization");
+
         builtDesignSchool = false;
+
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.HQ) {
                 hqLoc = bot.getLocation();
@@ -20,6 +22,15 @@ class MinerRobot extends RobotFramework {
             }
         }
     }
+
+    public void gatherMode() {
+
+    }
+
+    public void buildMode() {
+
+    }
+
     public void myTurn() throws GameActionException {
         if( !builtDesignSchool && rc.getID() % 5 == 0 ){
             //move to design school location
