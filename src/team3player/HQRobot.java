@@ -8,24 +8,38 @@ class HQRobot extends RobotFramework {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
         super(rc_);
-        System.out.println("HQ initialization");
     }
     public void myTurn() throws GameActionException {
-        System.out.println("HQ: my turn!");
         waitforcooldown();
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
             if (rc.canShootUnit(bot.ID)) {
                 rc.shootUnit(bot.ID);
             }
-            else
-                System.out.println("cannot shoot bot");
         }
+        if (affordMiner()) {
+            buildMiner();
+        }
+    }
+    public boolean affordMiner() {
+        //the coefficient multiplies the amout of soup the team needs to have saved up per miner to build another miner
+        //so increasing the coefficient means the HQ builds fewer miners, decreasing the coefficient means more miners are built
+        //I'm sure this number will get tweaked alot especial once we start getting a wall built.
+        //a reasonable range for the coefficient is like [0.3 - 2]
+        double coefficient = 0.8;
+        //miners cost 70 units of soup to make
+        final int minerCost = 70;
+        System.out.println("HQ bank level: " + numOfMiners * minerCost * coefficient);
+        if (rc.getTeamSoup() >= numOfMiners * minerCost * coefficient) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    public void buildMiner()throws GameActionException {
         for (Direction dir : directions) {
             if (numOfMiners < maxNumOfMiners) {
                 if (tryBuild(RobotType.MINER, dir))
-                    numOfMiners++;
-                else
-                    System.out.println("HQ could not build miner");
+                numOfMiners++;
             }
         }
     }
