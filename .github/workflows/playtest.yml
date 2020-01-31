@@ -25,6 +25,34 @@ jobs:
       run: ./gradlew playtest -Pmaps=BeachFrontProperty >> build/reports/playtest.txt
     - name: playtest maps
       run: ./gradlew playtest -Pmaps=CentralLake >> build/reports/playtest.txt
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=CentralSoup >> build/reports/playtest.txt
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=ChristmasInJuly >> build/reports/playtest.txt    
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=ClearlyTwelveHorsesInASalad >> build/reports/playtest.txt    
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=Climb >> build/reports/playtest.txt       
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=Constriction >> build/reports/playtest.txt    
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=CosmicBackgroundRadiation >> build/reports/playtest.txt    
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=CowFarm >> build/reports/playtest.txt  
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=DidAMonkeyMakeThis >> build/reports/playtest.txt   
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=DisproportionatelySmallGap >> build/reports/playtest.txt  
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=DoesNotExist >> build/reports/playtest.txt   
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=Egg >> build/reports/playtest.txt  
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=Europe >> build/reports/playtest.txt   
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=FourLakeLand >> build/reports/playtest.txt  
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=GSF >> build/reports/playtest.txt                    
     - name: upload test report
       if: always()
       uses: actions/upload-artifact@v1.0.0
