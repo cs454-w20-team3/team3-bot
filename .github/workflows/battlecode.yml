@@ -19,8 +19,7 @@ jobs:
       run: ./gradlew build
     - name: run tests
       run: ./gradlew test
-    - name: code coverage
-      run: ./gradlew testCodeCoverage
+
     - name: make report
       if: always()
       run: ./gradlew codeCoverageReport
@@ -29,3 +28,5 @@ jobs:
       with:
         name: coverage report
         path: build/reports/jacoco/codeCoverageReport/html
+    - name: code coverage
+      run: ./gradlew testCodeCoverage
