@@ -21,12 +21,7 @@ jacocoTestReport {
         html.destination file("${buildDir}/jacocoHtml")
     }
 }
-test {
-    jacoco {
-        includes = ['src/team3player/']
-        excludes = ['src/*']
-    }
-}
+
 
 // TODO: DELETE CREDENTIALS AFTER PUBLIC RELEASE
 
