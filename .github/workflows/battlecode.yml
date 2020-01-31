@@ -22,6 +22,7 @@ jobs:
     - name: code coverage
       run: ./gradlew testCodeCoverage
     - name: make report
+      if: always()
       run: ./gradlew codeCoverageReport
     - name: upload report
       uses: actions/upload-artifact@v1.0.0
