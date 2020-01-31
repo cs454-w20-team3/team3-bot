@@ -1,0 +1,30 @@
+name: battlecode-playtest
+
+on: [pull_request]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: build battlecode
+      run: ./gradlew build
+    - name: playtest maps
+      run: ./gradlew playtest -Pmaps=ALandDivided >> build/reports/playtest.txt
+      run: ./gradlew playtest -Pmaps=AMaze >> build/reports/playtest.txt
+      run: ./gradlew playtest -Pmaps=BeachFrontProperty >> build/reports/playtest.txt
+      run: ./gradlew playtest -Pmaps=CentralLake >> build/reports/playtest.txt
+    - name: upload test report
+      if: always()
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: playtest report
+        path: build/reports/playtest.txt
