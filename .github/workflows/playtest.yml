@@ -19,8 +19,11 @@ jobs:
       run: ./gradlew build
     - name: playtest maps
       run: ./gradlew playtest -Pmaps=ALandDivided >> build/reports/playtest.txt
+    - name: playtest maps 
       run: ./gradlew playtest -Pmaps=AMaze >> build/reports/playtest.txt
+    - name: playtest maps
       run: ./gradlew playtest -Pmaps=BeachFrontProperty >> build/reports/playtest.txt
+    - name: playtest maps
       run: ./gradlew playtest -Pmaps=CentralLake >> build/reports/playtest.txt
     - name: upload test report
       if: always()
