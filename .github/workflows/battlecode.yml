@@ -19,11 +19,16 @@ jobs:
       run: ./gradlew build
     - name: run tests
       run: ./gradlew test
-
+    - name: upload test report
+      if: always()
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        name: test report
+        path: build/reports/tests/test
     - name: make report
       if: always()
       run: ./gradlew codeCoverageReport
-    - name: upload report
+    - name: upload coverage report
       uses: actions/upload-artifact@v1.0.0
       with:
         name: coverage report
