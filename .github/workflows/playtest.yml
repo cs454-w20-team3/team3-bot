@@ -60,10 +60,6 @@ jobs:
         name: playtest report
         path: build/reports/playtest.txt
     - name: check for any Null exceptions
-<<<<<<< HEAD
       run: |
         chmod +x ./.github/workflows/checkfornull
         ./.github/workflows/checkfornull
-=======
-      run: ! (grep Null ./build/reports/playtest.txt) 
->>>>>>> 49994f563dcb3312eb2b0c6820691292b8e41b60
