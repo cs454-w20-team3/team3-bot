@@ -59,3 +59,5 @@ jobs:
       with:
         name: playtest report
         path: build/reports/playtest.txt
+    - name: check for any Null exceptions
+      run: ! (grep Null ./build/reports/playtest.txt) 
