@@ -93,6 +93,7 @@ def clientName = os.startsWith('windows') ? 'battlecode-client-win' :
 
 // The dependencies of this project.
 dependencies {
+    testCompile "org.mockito:mockito-core:2.+"
     // The Battlecode engine.
     implementation group: 'org.battlecode', name: 'battlecode', version: versions.battlecode
 
