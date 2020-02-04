@@ -1,7 +1,7 @@
 package team3player;
 import battlecode.common.*;
 class LandscaperRobot extends RobotFramework {
-    MapLocation hqLoc;
+    MapLocation hqLoc; //this is initialized to null, if used it will create a null reference exception
     
     LandscaperRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
@@ -14,7 +14,8 @@ class LandscaperRobot extends RobotFramework {
                 hqLoc = bot.getLocation();
                 System.out.println("Found HQ Location: " + hqLoc.x + ":" + hqLoc.y);
             }
-        }
+        } //the landscaper might not sense the HQ in its first turn
+        //so hqLoc might still be null after this
 
     }
     public void myTurn()throws GameActionException {
@@ -22,6 +23,7 @@ class LandscaperRobot extends RobotFramework {
         waitforcooldown();
 
         MapLocation myLoc = rc.getLocation();
+        //the next line uses the .y and .x property on hqLoc, but hqLoc might still be null throwing a null reference exception
         double distHQ = Math.pow((myLoc.x - hqLoc.x),2) + Math.pow((myLoc.y - hqLoc.y),2);
         Direction dirDep = rc.getLocation().directionTo(hqLoc);
         Direction dirDig = dirDep.opposite();  // old, non-working approach - (dirDep + 4) % 8
