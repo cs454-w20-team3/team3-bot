@@ -204,6 +204,27 @@ task run(type: JavaExec, dependsOn: 'build') {
         '-Dbc.server.save-file=' +project.property('replay')
     ]
 }
+task playtest(type: JavaExec, dependsOn: 'build') {
+    description 'Runs a match without starting the client.'
+    group 'battlecode'
+
+    main = 'battlecode.server.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = ['-c=-']
+    jvmArgs = [
+        '-Dbc.server.mode=headless',
+        '-Dbc.server.map-path=maps',
+        '-Dbc.server.debug=false',
+        '-Dbc.engine.debug-methods=false',
+        '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
+        '-Dbc.game.team-a='+project.property('teamA'),
+        '-Dbc.game.team-b='+project.property('teamB'),
+        '-Dbc.game.team-a.url='+project.property('classLocation'),
+        '-Dbc.game.team-b.url='+project.property('classLocation'),
+        '-Dbc.game.maps='+project.property('maps'),
+        '-Dbc.server.save-file=' +project.property('replay')
+    ]
+}
 task runFromClient(type: JavaExec, dependsOn: 'build') {
     main = 'battlecode.server.Main'
     classpath = project.sourceSets.main.runtimeClasspath
