@@ -1,0 +1,21 @@
+#!/bin/bash
+./gradlew playtest -Pmaps=ALandDivided >> ./playtest.txt
+./gradlew playtest -Pmaps=AMaze >> ./playtest.txt
+./gradlew playtest -Pmaps=BeachFrontProperty >> ./playtest.txt
+./gradlew playtest -Pmaps=CentralLake >> ./playtest.txt
+./gradlew playtest -Pmaps=CentralSoup >> ./playtest.txt
+./gradlew playtest -Pmaps=ChristmasInJuly >> ./playtest.txt    
+./gradlew playtest -Pmaps=ClearlyTwelveHorsesInASalad >> ./playtest.txt    
+./gradlew playtest -Pmaps=Climb >> ./playtest.txt       
+./gradlew playtest -Pmaps=Constriction >> ./playtest.txt    
+./gradlew playtest -Pmaps=CosmicBackgroundRadiation >> ./playtest.txt    
+./gradlew playtest -Pmaps=CowFarm >> ./playtest.txt  
+./gradlew playtest -Pmaps=DidAMonkeyMakeThis >> ./playtest.txt   
+./gradlew playtest -Pmaps=DisproportionatelySmallGap >> ./playtest.txt  
+./gradlew playtest -Pmaps=DoesNotExist >> ./playtest.txt   
+./gradlew playtest -Pmaps=Egg >> ./playtest.txt  
+./gradlew playtest -Pmaps=Europe >> ./playtest.txt   
+./gradlew playtest -Pmaps=FourLakeLand >> ./playtest.txt  
+./gradlew playtest -Pmaps=GSF >> ./playtest.txt                    
+grep Null ./playtest.txt > /dev/zero && echo "I found Null exceptions"
+grep Null ./playtest.txt > /dev/zero || echo "No runtime errors!!"
