@@ -1,0 +1,4 @@
+#!/bin/bash
+
+grep Null ./build/reports/playtest.txt > /dev/zero && exit 1
+grep Null ./build/reports/playtest.txt > /dev/zero || exit 0
