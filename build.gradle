@@ -8,11 +8,20 @@ apply plugin: 'java'
 
 apply plugin: 'idea'
 apply plugin: 'eclipse'
+apply plugin: 'jacoco'
 
 ext.versions = [
     battlecode: new File(projectDir, "version.txt").text.trim()
     //scala: '2.11.7'
 ]
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled true
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
 
 // TODO: DELETE CREDENTIALS AFTER PUBLIC RELEASE
 
@@ -84,6 +93,7 @@ def clientName = os.startsWith('windows') ? 'battlecode-client-win' :
 
 // The dependencies of this project.
 dependencies {
+    testCompile "org.mockito:mockito-core:2.+"
     // The Battlecode engine.
     implementation group: 'org.battlecode', name: 'battlecode', version: versions.battlecode
 
@@ -341,6 +351,49 @@ task buildMap(type: JavaExec, dependsOn: 'build') {
     group 'battlecode'
     main = 'maps.' + project.property('buildMap')
     classpath = project.sourceSets.main.runtimeClasspath
+}
+
+task codeCoverageReport(type: JacocoReport) {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+    sourceSets sourceSets.main
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
+    // excludes = [*]
+    // includes = ['src/team3player/**']
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, include: '**/team3player/**')
+        }))
+    }
+    reports {
+        html.enabled true
+    }
+}
+
+codeCoverageReport.dependsOn {
+    subprojects*.test
+}
+
+task testCodeCoverage(type: JacocoCoverageVerification) {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+    sourceSets sourceSets.main
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.1
+            }
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, include: '**/team3player/**')
+        }))
+    }
+
 }
 
 unpackClient32.onlyIf { arch32 }
