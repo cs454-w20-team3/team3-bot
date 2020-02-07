@@ -129,15 +129,7 @@ class MinerRobot extends RobotFramework {
         }
     }
     RobotType buildingToMake() {
-        switch (rc.getID() % 3) {
-            case 0:
-                return RobotType.VAPORATOR;
-            case 1:
-                return RobotType.FULFILLMENT_CENTER;
-            case 2:
-                return RobotType.DESIGN_SCHOOL;
-            default:
-                return RobotType.DESIGN_SCHOOL;
-        }
+        RobotType possible[] = {RobotType.VAPORATOR, RobotType.FULFILLMENT_CENTER, RobotType.DESIGN_SCHOOL};
+        return possible[rc.getID() & possible.length]
     }
 }
