@@ -4,7 +4,7 @@ class LandscaperRobot extends RobotFramework {
     MapLocation hqLoc; //this is initialized to null, if used it will create a null reference exception
     MapLocation baddyHqLoc; //location of enemy HQ
     MapLocation myLoc; //stores this bots location
-
+    
     LandscaperRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
