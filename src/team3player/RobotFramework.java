@@ -42,7 +42,7 @@ public abstract class RobotFramework {
     }
 
     boolean canMoveSafe(Direction dir) throws GameActionException {
-        if (rc.canMove(dir) && rc.senseFlooding(rc.getLocation().add(dir))) {
+        if (rc.canMove(dir) && rc.senseFlooding(rc.getLocation().add(dir)) == false) {
             return true;
         }
         return false;
@@ -51,6 +51,14 @@ public abstract class RobotFramework {
     boolean tryMove(Direction dir) throws GameActionException {
         // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
         if (rc.isReady() && rc.canMove(dir)) {
+            rc.move(dir);
+            return true;
+        } else return false;
+    }
+
+    boolean tryMoveSafe(Direction dir) throws GameActionException {
+        // System.out.println("I am trying to move " + dir + "; " + rc.isReady() + " " + rc.getCooldownTurns() + " " + rc.canMove(dir));
+        if (rc.isReady() && canMoveSafe(dir)) {
             rc.move(dir);
             return true;
         } else return false;
