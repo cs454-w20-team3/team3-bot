@@ -80,7 +80,6 @@ class MinerRobot extends RobotFramework {
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.REFINERY) {
                 refineLoc = bot.getLocation();
-                System.out.println("Found Refinery Location: " + refineLoc.x + ":" + refineLoc.y);
                 return true;
             }
         }
