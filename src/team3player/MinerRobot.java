@@ -130,6 +130,6 @@ class MinerRobot extends RobotFramework {
     }
     RobotType buildingToMake() {
         RobotType possible[] = {RobotType.VAPORATOR, RobotType.FULFILLMENT_CENTER, RobotType.DESIGN_SCHOOL};
-        return possible[rc.getID() & possible.length]
+        return possible[rc.getID() & possible.length];
     }
 }
