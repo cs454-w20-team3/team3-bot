@@ -119,6 +119,9 @@ class MinerRobot extends RobotFramework {
         //This is the slope of a line otherwise known as m in y=mx+b
         double y = slope * currentRound + builderPercentageStart;
         //y is the percentage of the current round to make a builder
+        if (currentRound > lastRound) {
+            y = builderPercentageEnd;
+        }
         if (id % 100 < y) {
             return MinerType.BUILDER;
         } else {
