@@ -8,20 +8,11 @@ apply plugin: 'java'
 
 apply plugin: 'idea'
 apply plugin: 'eclipse'
-apply plugin: 'jacoco'
 
 ext.versions = [
     battlecode: new File(projectDir, "version.txt").text.trim()
     //scala: '2.11.7'
 ]
-jacocoTestReport {
-    reports {
-        xml.enabled false
-        html.enabled true
-        html.destination file("${buildDir}/jacocoHtml")
-    }
-}
-
 
 // TODO: DELETE CREDENTIALS AFTER PUBLIC RELEASE
 
@@ -33,7 +24,7 @@ repositories {
         url "https://maven.pkg.github.com/battlecode/battlecode20"
         credentials {
             username = project.findProperty("gpr.user")
-            password = new URL("https://2020.battlecode.org/access.txt").text.trim()
+            password = new URL("http://2020.battlecode.org/access.txt").text.trim()
         }
     }
     // Use the JCenter repo to resolve Scala dependencies.
@@ -93,7 +84,6 @@ def clientName = os.startsWith('windows') ? 'battlecode-client-win' :
 
 // The dependencies of this project.
 dependencies {
-    testCompile "org.mockito:mockito-core:2.+"
     // The Battlecode engine.
     implementation group: 'org.battlecode', name: 'battlecode', version: versions.battlecode
 
@@ -135,7 +125,7 @@ task version {
 task screamForUpdate() {
     group 'battlecode'
     doLast {
-        if (versions.battlecode != new URL("https://2020.battlecode.org/version.txt").text.trim()) print("\n\n\n\n\n\n\tNEW VERSION AVAILABLE\n\trun ./gradlew update to download \n\n\n\n")
+        if (versions.battlecode != new URL("http://2020.battlecode.org/version.txt").text.trim()) print("\n\n\n\n\n\n\tNEW VERSION AVAILABLE\n\trun ./gradlew update to download \n\n\n\n")
     }
 }
 
@@ -145,7 +135,7 @@ task update {
     group 'battlecode'
     doLast {
         //overwrites stored version number
-        new File(projectDir, "version.txt").text = new URL("https://2020.battlecode.org/version.txt").text.trim()
+        new File(projectDir, "version.txt").text = new URL("http://2020.battlecode.org/version.txt").text.trim()
 
         //overwrites cached version number
         versions.battlecode = new File(projectDir, "version.txt").text
@@ -195,28 +185,6 @@ task run(type: JavaExec, dependsOn: 'build') {
         '-Dbc.server.map-path=maps',
         '-Dbc.server.debug=true',
         '-Dbc.engine.debug-methods=true',
-        '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
-        '-Dbc.game.team-a='+project.property('teamA'),
-        '-Dbc.game.team-b='+project.property('teamB'),
-        '-Dbc.game.team-a.url='+project.property('classLocation'),
-        '-Dbc.game.team-b.url='+project.property('classLocation'),
-        '-Dbc.game.maps='+project.property('maps'),
-        '-Dbc.server.save-file=' +project.property('replay')
-    ]
-}
-task playtest(type: JavaExec, dependsOn: 'build') {
-    description 'Runs a match without starting the client.'
-    group 'battlecode'
-
-    main = 'battlecode.server.Main'
-    classpath = sourceSets.main.runtimeClasspath
-    args = ['-c=-']
-    jvmArgs = [
-        '-Dbc.server.mode=headless',
-        '-Dbc.server.map-path=maps',
-        '-Dbc.server.debug=false',
-        '-Dbc.engine.debug-methods=false',
-        '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
         '-Dbc.game.team-a='+project.property('teamA'),
         '-Dbc.game.team-b='+project.property('teamB'),
         '-Dbc.game.team-a.url='+project.property('classLocation'),
@@ -236,7 +204,6 @@ task runFromClient(type: JavaExec, dependsOn: 'build') {
             '-Dbc.server.debug=false',
             '-Dbc.server.robot-player-to-system-out=false',
             '-Dbc.engine.debug-methods=true',
-            '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
             '-Dbc.game.team-a='+project.property('teamA'),
             '-Dbc.game.team-b='+project.property('teamB'),
             '-Dbc.game.team-a.url='+project.property('classLocation'),
@@ -257,7 +224,6 @@ task runDebug(type: JavaExec, dependsOn: 'build') {
             '-Dbc.server.debug=false',
             '-Dbc.server.robot-player-to-system-out=true',
             '-Dbc.engine.debug-methods=true',
-            '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
             '-Dbc.game.team-a='+project.property('teamA'),
             '-Dbc.game.team-b='+project.property('teamB'),
             '-Dbc.game.team-a.url='+project.property('classLocation'),
@@ -351,49 +317,6 @@ task buildMap(type: JavaExec, dependsOn: 'build') {
     group 'battlecode'
     main = 'maps.' + project.property('buildMap')
     classpath = project.sourceSets.main.runtimeClasspath
-}
-
-task codeCoverageReport(type: JacocoReport) {
-    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
-    sourceSets sourceSets.main
-    subprojects.each {
-        sourceSets it.sourceSets.main
-    }
-    // excludes = [*]
-    // includes = ['src/team3player/**']
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, include: '**/team3player/**')
-        }))
-    }
-    reports {
-        html.enabled true
-    }
-}
-
-codeCoverageReport.dependsOn {
-    subprojects*.test
-}
-
-task testCodeCoverage(type: JacocoCoverageVerification) {
-    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
-    sourceSets sourceSets.main
-    subprojects.each {
-        sourceSets it.sourceSets.main
-    }
-    violationRules {
-        rule {
-            limit {
-                minimum = 0.1
-            }
-        }
-    }
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, include: '**/team3player/**')
-        }))
-    }
-
 }
 
 unpackClient32.onlyIf { arch32 }
