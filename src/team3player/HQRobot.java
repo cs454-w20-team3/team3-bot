@@ -2,7 +2,7 @@ package team3player;
 import battlecode.common.*;
 class HQRobot extends RobotFramework {
     int numOfMiners = 0;
-    final int maxNumOfMiners = 10;
+    final int maxNumOfMiners = 6;
 
     HQRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc

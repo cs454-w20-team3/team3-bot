@@ -3,7 +3,7 @@ import battlecode.common.*;
 class DesignSchoolRobot extends RobotFramework {
     MapLocation dsLoc;
     int numOfLandscapers = 0;
-    final int maxNumOfLandscapers = 5;
+    final int maxNumOfLandscapers = 1;
 
     DesignSchoolRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
