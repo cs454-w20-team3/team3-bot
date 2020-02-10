@@ -34,14 +34,25 @@ class MinerRobot extends RobotFramework {
     }
 
     public void myTurn() throws GameActionException {
-        if( rc.getTeamSoup() >= 150 && numOfDesignSchools == 0 && rc.getID() % 4 == 0 ){
+        final int designCost = 150;
+        final int refineryCost = 200;
+        final int fulfillmentCost = 150;
+        final double designCoeff = 0.8;
+        final double refineryCoeff = 0.5;
+        final double fulfillmentCoeff = 0.7;
+
+        if( rc.getTeamSoup() >= designCost * designCoeff && numOfDesignSchools == 0 && rc.getID() % 4 == 0 ){
             //move to design school location and build
             //after building, go back to HQ.
-            //System.out.println("Miner tries to build the design school");
-            if(tryMoveBuildTarget(RobotType.DESIGN_SCHOOL,hqLoc.x + 3, hqLoc.y + 3))
-                numOfDesignSchools++;
+            tryMoveToTarget(hqLoc.x + 2, hqLoc.y + 2);
+            if(buildDesignSchool()){
+                Direction dirToHQ = rc.getLocation().directionTo(hqLoc);
+                if(!tryMoveSafe(dirToHQ))
+                    tryMoveSafe(randomDirection());
+            }
         } else {
             //Other robots sense soups and moves to that place and mine the soups.
+            //One miner is building refinery and fulfillment center.
             MapLocation[] soupLocs = rc.senseNearbySoup();
             if (soupLocs.length != 0) {
                 int soupLocIdx = (int) (soupLocs.length * Math.random());
@@ -49,42 +60,34 @@ class MinerRobot extends RobotFramework {
                 if(!tryMoveSafe(dirToSoup))
                     tryMoveSafe(randomDirection());
                 if(rc.getID() % 4 == 1) {
-                    if (rc.getTeamSoup() >= 150 && numOfRefineries == 0) {
-                        for (Direction dir : directions) {
-                            if (tryBuild(RobotType.REFINERY, dir))
-                                numOfRefineries++;
-                        }
-                    }
-                    else if (rc.getTeamSoup() >= 100 && numOfFulfillments == 0) {
-                        for (Direction dir : directions) {
-                            if (tryBuild(RobotType.FULFILLMENT_CENTER, dir))
-                                numOfFulfillments++;
-                        }
-                    }
+                    if (rc.getTeamSoup() >= refineryCost * refineryCoeff && numOfRefineries == 0)
+                        buildRefinery();
+                    else if (rc.getTeamSoup() >= fulfillmentCost * fulfillmentCoeff && numOfFulfillments == 0)
+                        buildFulfillmentCenter();
                 }
                 tryMine(Direction.CENTER);
             } else {
-                //System.out.println("Miner couldn't find the soup location");
                 tryMoveSafe(randomDirection());
             }
             //If robots carries soup limit, move to refinery or HQ to refine the soup.
             if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
-                Direction dirToRefine = null;
-                if(senseNearbyRefinery()) {
-                    System.out.println("Go Refinery to refine");
-                    dirToRefine = rc.getLocation().directionTo(refineLoc);
-                } else {
-                    System.out.println("Go HQ to refine");
-                    dirToRefine = rc.getLocation().directionTo(hqLoc);
-                }
-                if (tryMoveSafe(dirToRefine))
-                    System.out.println("Move HQ or Refinery");
-                if (tryRefine(Direction.CENTER))
-                    System.out.println("I refined soup! " + rc.getTeamSoup());
+                Direction dirToRefine = getDirToRefine();
+                tryMoveSafe(dirToRefine);
+                tryRefine(Direction.CENTER);
             }
         }
     }
-    boolean senseNearbyRefinery() throws GameActionException {
+
+    public Direction getDirToRefine() throws GameActionException {
+        Direction dirToRefine;
+        if(senseNearbyRefinery()) {
+            dirToRefine = rc.getLocation().directionTo(refineLoc);
+        } else {
+            dirToRefine = rc.getLocation().directionTo(hqLoc);
+        }
+        return dirToRefine;
+    }
+    public boolean senseNearbyRefinery() throws GameActionException {
         //Return true if the robot senses refinery nearby, otherwise return false.
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.REFINERY) {
@@ -95,22 +98,35 @@ class MinerRobot extends RobotFramework {
         }
         return false;
     }
-    boolean tryMoveBuildTarget(RobotType targetType, int targetX, int targetY) throws GameActionException {
-        //The robot moves to target place and try to build targetType.
-        //If the robot succeed to build, moves back to HQ or random direction.
+
+    public boolean tryMoveToTarget(int targetX, int targetY) throws GameActionException {
         MapLocation tLoc = new MapLocation(targetX, targetY);
         Direction dirToTarget = rc.getLocation().directionTo(tLoc);
-        tryMoveSafe(dirToTarget);
-        //try to build target
+        if(tryMoveSafe(dirToTarget))
+            return true;
+        else
+            return false;
+    }
+    public boolean buildDesignSchool()throws GameActionException {
         for (Direction dir : directions) {
-            if (tryBuild(targetType, dir)) {
-                Direction dirToHQ = rc.getLocation().directionTo(hqLoc);
-                if(!tryMoveSafe(dirToHQ))
-                    tryMoveSafe(randomDirection());
+            if (tryBuild(RobotType.DESIGN_SCHOOL, dir)) {
+                numOfDesignSchools++;
                 return true;
             }
         }
         return false;
+    }
+    public void buildRefinery()throws GameActionException {
+        for (Direction dir : directions) {
+            if (tryBuild(RobotType.REFINERY, dir))
+                numOfRefineries++;
+        }
+    }
+    public void buildFulfillmentCenter()throws GameActionException {
+        for (Direction dir : directions) {
+            if (tryBuild(RobotType.FULFILLMENT_CENTER, dir))
+                numOfFulfillments++;
+        }
     }
     boolean tryRefine(Direction dir) throws GameActionException {
         if (rc.isReady() && rc.canDepositSoup(dir)) {
