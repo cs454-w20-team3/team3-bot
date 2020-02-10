@@ -11,9 +11,17 @@ apply plugin: 'eclipse'
 apply plugin: 'jacoco'
 
 ext.versions = [
-    battlecode: new File(projectDir, "version.txt").text.trim()
-    //scala: '2.11.7'
+        battlecode: new File(projectDir, "version.txt").text.trim()
+        //scala: '2.11.7'
 ]
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        html.enabled true
+        html.destination file("${buildDir}/jacocoHtml")
+    }
+}
+
 
 // TODO: DELETE CREDENTIALS AFTER PUBLIC RELEASE
 
@@ -80,11 +88,12 @@ configurations {
 // Download a different version of the client depending on the local OS.
 def os = System.getProperty("os.name").toLowerCase()
 def clientName = os.startsWith('windows') ? 'battlecode-client-win' :
-                 os.startsWith('mac') ? 'battlecode-client-mac' :
-                 'battlecode-client-linux'
+        os.startsWith('mac') ? 'battlecode-client-mac' :
+                'battlecode-client-linux'
 
 // The dependencies of this project.
 dependencies {
+    testCompile "org.mockito:mockito-core:2.+"
     // The Battlecode engine.
     implementation group: 'org.battlecode', name: 'battlecode', version: versions.battlecode
 
@@ -182,16 +191,38 @@ task run(type: JavaExec, dependsOn: 'build') {
     classpath = sourceSets.main.runtimeClasspath
     args = ['-c=-']
     jvmArgs = [
-        '-Dbc.server.mode=headless',
-        '-Dbc.server.map-path=maps',
-        '-Dbc.server.debug=true',
-        '-Dbc.engine.debug-methods=true',
-        '-Dbc.game.team-a='+project.property('teamA'),
-        '-Dbc.game.team-b='+project.property('teamB'),
-        '-Dbc.game.team-a.url='+project.property('classLocation'),
-        '-Dbc.game.team-b.url='+project.property('classLocation'),
-        '-Dbc.game.maps='+project.property('maps'),
-        '-Dbc.server.save-file=' +project.property('replay')
+            '-Dbc.server.mode=headless',
+            '-Dbc.server.map-path=maps',
+            '-Dbc.server.debug=true',
+            '-Dbc.engine.debug-methods=true',
+            '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
+            '-Dbc.game.team-a='+project.property('teamA'),
+            '-Dbc.game.team-b='+project.property('teamB'),
+            '-Dbc.game.team-a.url='+project.property('classLocation'),
+            '-Dbc.game.team-b.url='+project.property('classLocation'),
+            '-Dbc.game.maps='+project.property('maps'),
+            '-Dbc.server.save-file=' +project.property('replay')
+    ]
+}
+task playtest(type: JavaExec, dependsOn: 'build') {
+    description 'Runs a match without starting the client.'
+    group 'battlecode'
+
+    main = 'battlecode.server.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    args = ['-c=-']
+    jvmArgs = [
+            '-Dbc.server.mode=headless',
+            '-Dbc.server.map-path=maps',
+            '-Dbc.server.debug=false',
+            '-Dbc.engine.debug-methods=false',
+            '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
+            '-Dbc.game.team-a='+project.property('teamA'),
+            '-Dbc.game.team-b='+project.property('teamB'),
+            '-Dbc.game.team-a.url='+project.property('classLocation'),
+            '-Dbc.game.team-b.url='+project.property('classLocation'),
+            '-Dbc.game.maps='+project.property('maps'),
+            '-Dbc.server.save-file=' +project.property('replay')
     ]
 }
 task runFromClient(type: JavaExec, dependsOn: 'build') {
@@ -205,6 +236,7 @@ task runFromClient(type: JavaExec, dependsOn: 'build') {
             '-Dbc.server.debug=false',
             '-Dbc.server.robot-player-to-system-out=false',
             '-Dbc.engine.debug-methods=true',
+            '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
             '-Dbc.game.team-a='+project.property('teamA'),
             '-Dbc.game.team-b='+project.property('teamB'),
             '-Dbc.game.team-a.url='+project.property('classLocation'),
@@ -225,6 +257,7 @@ task runDebug(type: JavaExec, dependsOn: 'build') {
             '-Dbc.server.debug=false',
             '-Dbc.server.robot-player-to-system-out=true',
             '-Dbc.engine.debug-methods=true',
+            '-Dbc.engine.enable-profiler='+project.property('profilerEnabled'),
             '-Dbc.game.team-a='+project.property('teamA'),
             '-Dbc.game.team-b='+project.property('teamB'),
             '-Dbc.game.team-a.url='+project.property('classLocation'),
@@ -244,8 +277,8 @@ task listPlayers {
         sourceSets.main.allSource.each {
             println it.name
             if (it.getName().equals('RobotPlayer.java')
-                //|| it.getName().equals('RobotPlayer.scala')
-                ) {
+            //|| it.getName().equals('RobotPlayer.scala')
+            ) {
                 URI base = new File(project.projectDir, 'src').toURI()
                 URI full = it.toURI()
                 String path = base.relativize(full).toString()
@@ -318,6 +351,49 @@ task buildMap(type: JavaExec, dependsOn: 'build') {
     group 'battlecode'
     main = 'maps.' + project.property('buildMap')
     classpath = project.sourceSets.main.runtimeClasspath
+}
+
+task codeCoverageReport(type: JacocoReport) {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+    sourceSets sourceSets.main
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
+    // excludes = [*]
+    // includes = ['src/team3player/**']
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, include: '**/team3player/**')
+        }))
+    }
+    reports {
+        html.enabled true
+    }
+}
+
+codeCoverageReport.dependsOn {
+    subprojects*.test
+}
+
+task testCodeCoverage(type: JacocoCoverageVerification) {
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
+    sourceSets sourceSets.main
+    subprojects.each {
+        sourceSets it.sourceSets.main
+    }
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.1
+            }
+        }
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, include: '**/team3player/**')
+        }))
+    }
+
 }
 
 unpackClient32.onlyIf { arch32 }
