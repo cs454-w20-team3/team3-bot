@@ -44,10 +44,10 @@ class MinerRobot extends RobotFramework {
             //Other robots sense soups and moves to that place and mine the soups.
             MapLocation[] soupLocs = rc.senseNearbySoup();
             if (soupLocs.length != 0) {
-                System.out.println("Miner found the soup location");
                 int soupLocIdx = (int) (soupLocs.length * Math.random());
                 Direction dirToSoup = rc.getLocation().directionTo(soupLocs[soupLocIdx]);
-                tryMove(dirToSoup);
+                if(!tryMoveSafe(dirToSoup))
+                    tryMoveSafe(randomDirection());
                 if(rc.getID() % 4 == 1) {
                     if (rc.getTeamSoup() >= 150 && numOfRefineries == 0) {
                         for (Direction dir : directions) {
@@ -65,7 +65,7 @@ class MinerRobot extends RobotFramework {
                 tryMine(Direction.CENTER);
             } else {
                 //System.out.println("Miner couldn't find the soup location");
-                tryMove(randomDirection());
+                tryMoveSafe(randomDirection());
             }
             //If robots carries soup limit, move to refinery or HQ to refine the soup.
             if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
@@ -77,7 +77,7 @@ class MinerRobot extends RobotFramework {
                     System.out.println("Go HQ to refine");
                     dirToRefine = rc.getLocation().directionTo(hqLoc);
                 }
-                if (tryMove(dirToRefine))
+                if (tryMoveSafe(dirToRefine))
                     System.out.println("Move HQ or Refinery");
                 if (tryRefine(Direction.CENTER))
                     System.out.println("I refined soup! " + rc.getTeamSoup());
@@ -100,14 +100,13 @@ class MinerRobot extends RobotFramework {
         //If the robot succeed to build, moves back to HQ or random direction.
         MapLocation tLoc = new MapLocation(targetX, targetY);
         Direction dirToTarget = rc.getLocation().directionTo(tLoc);
-        tryMove(dirToTarget);
+        tryMoveSafe(dirToTarget);
         //try to build target
         for (Direction dir : directions) {
             if (tryBuild(targetType, dir)) {
-                System.out.println("Miner build" + targetType);
                 Direction dirToHQ = rc.getLocation().directionTo(hqLoc);
-                if(!tryMove(dirToHQ))
-                    tryMove(randomDirection());
+                if(!tryMoveSafe(dirToHQ))
+                    tryMoveSafe(randomDirection());
                 return true;
             }
         }
