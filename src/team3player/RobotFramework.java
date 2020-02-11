@@ -1,5 +1,8 @@
 package team3player;
 import battlecode.common.*;
+
+import java.util.Map;
+
 public abstract class RobotFramework {
     public RobotController rc;
     static Direction[] directions = {
@@ -12,6 +15,7 @@ public abstract class RobotFramework {
         Direction.WEST,
         Direction.NORTHWEST
     };
+    final int teamCode = 333;
     RobotFramework(RobotController rc_) {
         rc=rc_;
     }
@@ -63,4 +67,43 @@ public abstract class RobotFramework {
             return true;
         } else return false;
     }
+    void sendHQLoc (MapLocation loc) throws GameActionException {
+        int[] message = new int[7];
+        message[0] = teamCode;
+        message[1] = 0;     //HQ location info
+        message[2] = loc.x;
+        message[3] = loc.y;
+        if(rc.canSubmitTransaction(message, 3)){
+            rc.submitTransaction(message, 3);
+        }
+    }
+
+    MapLocation getHQLocFromBlockchain () throws GameActionException {
+        for (int i=1; i < rc.getRoundNum(); i++) {
+            for ( Transaction tx : rc.getBlock(i)) {
+                int[] message = tx.getMessage();
+                if ( message[0] == teamCode && message[1] == 0)
+                    return new MapLocation(message[2], message[3]);
+            }
+        }
+        return null;
+    }
+    int[] getSpam () throws GameActionException {
+        for (int i=1; i < rc.getRoundNum(); i++) {
+            for ( Transaction tx : rc.getBlock(i)) {
+                int[] message = tx.getMessage();
+                if(message != null)
+                    return message;
+            }
+        }
+        return null;
+    }
+    void sendSpam () throws GameActionException {
+        int[] message = new int[7];
+        message = getSpam();
+        if(rc.canSubmitTransaction(message, 10)){
+            rc.submitTransaction(message, 10);
+        }
+    }
+
 }
