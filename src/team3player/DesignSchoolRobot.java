@@ -21,14 +21,17 @@ class DesignSchoolRobot extends RobotFramework {
         //logic to be run on every turn goes here
         System.out.println("Design School doing stuff");
         waitforcooldown();
-        if (hqDir != null && (tryBuild(RobotType.LANDSCAPER, hqDir)))
+        if (hqDir != null && (tryBuild(RobotType.LANDSCAPER, hqDir))) {
             numOfLandscapers++;
-        for (Direction dir : directions) {
-            if (numOfLandscapers < maxNumOfLandscapers) {
-                if (tryBuild(RobotType.LANDSCAPER, dir))
-                    numOfLandscapers++;
-                else
-                    System.out.println("DS could not build landscaper");
+        }
+        else {
+            for (Direction dir : directions) {
+                if (numOfLandscapers < maxNumOfLandscapers) {
+                    if (tryBuild(RobotType.LANDSCAPER, dir))
+                        numOfLandscapers++;
+                    else
+                        System.out.println("DS could not build landscaper");
+                }
             }
         }
     }
