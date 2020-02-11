@@ -62,7 +62,16 @@ class MinerRobot extends RobotFramework {
 
     }
     void builder() {
-
+        //if there is no DS
+        if (numOfDesignSchools == 0) {
+            moveToGoodDSArea();
+        }
+        //if there is no FC
+        if (numOfFulfillments == 0) {
+            buildFC();
+        }
+        //otherwise become a gatherer
+        gatherer();
     }
 
     void moveToGoodDSArea() {
