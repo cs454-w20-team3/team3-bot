@@ -7,6 +7,11 @@ class MinerRobot extends RobotFramework {
     int numOfRefineries;
     MinerType myType;
     int numOfFulfillments;
+    //builder mode memory
+
+
+
+    //gather mode memory
 
     MinerRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
@@ -68,7 +73,7 @@ class MinerRobot extends RobotFramework {
     }
 
     void buildFC() {
-        
+
     }
 
     public void myTurn() throws GameActionException {
