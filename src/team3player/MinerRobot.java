@@ -56,10 +56,27 @@ class MinerRobot extends RobotFramework {
     void goToRefinery() {
 
     }
+    void builder() {
+
+    }
+
+    void moveToGoodDSArea() {
+
+    }
+
+    void buildDS() {
+
+    }
+
+    void buildFC() {
+        
+    }
 
     public void myTurn() throws GameActionException {
         if (myType == MinerType.GATHERER) {
             gatherer();
+        } else {
+            builder();
         }
     }
     boolean senseNearbyRefinery() throws GameActionException {
