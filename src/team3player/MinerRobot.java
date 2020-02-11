@@ -7,6 +7,8 @@ class MinerRobot extends RobotFramework {
     int numOfDesignSchools;
     int numOfRefineries;
     MinerType myType;
+    int numOfFulfillments;
+
     MinerRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
@@ -16,6 +18,7 @@ class MinerRobot extends RobotFramework {
         myType = determineMyType(90, 20, 700);
         numOfDesignSchools = 0;
         numOfRefineries = 0;
+        numOfFulfillments = 0;
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.HQ) {
                 hqLoc = bot.getLocation();
@@ -24,50 +27,39 @@ class MinerRobot extends RobotFramework {
         }
     }
 
-    public void gatherMode() {
+    void gatherer() {
+
+    }
+    void lookForSoup() {
+
+    }
+    void getSoup() {
 
     }
 
-    public void buildMode() {
+    void checkForRefinery() {
+
+    }
+
+    void buildRefinery() {
+
+    }
+
+    void processSoup() {
+
+    }
+
+    void goToHQ() {
+
+    }
+
+    void goToRefinery() {
 
     }
 
     public void myTurn() throws GameActionException {
-        if( numOfDesignSchools == 0 && rc.getID() % 4 == 0 ){
-            //move to design school location and build
-            //after building, go back to HQ.
-            // System.out.println("Miner tries to build the design school");
-            if(tryMoveBuildTarget(RobotType.DESIGN_SCHOOL,hqLoc.x + 3, hqLoc.y + 3))
-                numOfDesignSchools++;
-        } else if( numOfRefineries == 0 && rc.getID() % 4 == 1 ){
-            //move to refinery location and build
-            //after building, go back to HQ.
-            // System.out.println("Miner tries to build the refinery");
-            if(tryMoveBuildTarget(RobotType.REFINERY,hqLoc.x + 3, hqLoc.y - 3))
-                numOfRefineries++;
-        } else {
-            //Other robots sense soups and moves to that place and mine the soups.
-            MapLocation[] soupLocs = rc.senseNearbySoup();
-            if (soupLocs.length != 0) {
-                // System.out.println("Miner found the soup location");
-                int soupLocIdx = (int) (soupLocs.length * Math.random());
-                Direction dirToSoup = rc.getLocation().directionTo(soupLocs[soupLocIdx]);
-                tryMove(dirToSoup);
-                tryMine(Direction.CENTER);
-            } else {
-                tryMove(randomDirection());
-            }
-            //If robots carries soup limit, move to refinery or HQ to refine the soup.
-            if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
-                Direction dirToRefine = null;
-                if(senseNearbyRefinery()) {
-                    dirToRefine = rc.getLocation().directionTo(refineLoc);
-                } else {
-                    dirToRefine = rc.getLocation().directionTo(hqLoc);
-                }
-                if (tryMove(dirToRefine))
-                tryRefine(Direction.CENTER);
-            }
+        if (myType == MinerType.GATHERER) {
+            gatherer();
         }
     }
     boolean senseNearbyRefinery() throws GameActionException {
