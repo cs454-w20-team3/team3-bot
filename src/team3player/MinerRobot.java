@@ -1,6 +1,7 @@
 package team3player;
 import battlecode.common.*;
 class MinerRobot extends RobotFramework {
+    int failedMoves =0;
     MapLocation hqLoc;
     MapLocation refineLoc;
     int numOfDesignSchools;
@@ -131,5 +132,20 @@ class MinerRobot extends RobotFramework {
     RobotType buildingToMake() {
         RobotType possible[] = {RobotType.VAPORATOR, RobotType.FULFILLMENT_CENTER, RobotType.DESIGN_SCHOOL};
         return possible[rc.getID() & possible.length];
+    }
+    boolean tryMove(Direction dir)throws GameActionException {
+        final int failed_attampts_limit = 3;
+        if (super.tryMove(dir)) {
+            failedMoves =0;
+            return true;
+        } else {
+            failedMoves++;
+            if (failedMoves > failed_attampts_limit) {
+                if (rc.getLocation().isAdjacentTo(hqLoc)){
+                    rc.disintegrate();
+                }
+            }
+            return false;
+        }
     }
 }
