@@ -107,6 +107,7 @@ class MinerRobot extends RobotFramework {
             buildFC();
         }
         //otherwise become a gatherer
+        myType = MinerType.GATHERER;
         gatherer();
     }
 
