@@ -63,4 +63,17 @@ public abstract class RobotFramework {
             return true;
         } else return false;
     }
+
+    public boolean trySaunterSafe(Direction dir) throws GameActionException {
+        boolean moved = false;
+        Direction tryThis = dir;
+        while (!moved) {
+            tryThis = tryThis.rotateLeft();
+            if (rc.isReady() && canMoveSafe(tryThis)) {
+                rc.move(tryThis);
+                moved = true;
+            }
+        }
+        return true;
+    }
 }

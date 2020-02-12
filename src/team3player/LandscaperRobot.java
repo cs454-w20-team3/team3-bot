@@ -42,6 +42,7 @@ class LandscaperRobot extends RobotFramework {
         Direction dirDig = rc.getLocation().directionTo(hqLoc).opposite();  // old, non-working approach - (dirDep + 4) % 8
         System.out.println("Landscaper:" + rc.getID() + ", distance to HQ:" + distHQ + ", direction to HQ:" + dirHQ);
         if (distHQ < 4) { // makes sure it is in the appropriate range from HQ
+//            if (hqLoc != null) goToLowPoint(dirHQ);
             digDepMove(dirDig, dirDep, dirTo);
         }
         else {
@@ -51,16 +52,36 @@ class LandscaperRobot extends RobotFramework {
                     System.out.println("Landscaper " + rc.getID() + "moving towards HQ.");
                 }
                 else {
-                    tryMoveSafe(randomDirection());
+                    trySaunterSafe(dirHQ);
                     System.out.println("Landscaper " + rc.getID() + " cannot move towards HQ, trying random.");
                 }
             }
         }
+    }
 
+    public void goToLowPoint(Direction dir) throws GameActionException {
+        int lowElevation = 1000000;
+        Direction lowPoint = null;
+        for (Direction d : directions) {
+            MapLocation adjacent = hqLoc.add(d);
+            int adjElevation = (rc.senseElevation(adjacent));
+            lowElevation = Math.min(adjElevation, lowElevation);
+            if (adjElevation == lowElevation) {
+                lowPoint = d;
+            }
+        }
+        if (tryMoveSafe(lowPoint)) {
+            System.out.println("Landscaper " + rc.getID() + "moving towards HQ.");
+        }
+        else {
+            trySaunterSafe(lowPoint);
+            System.out.println("Landscaper " + rc.getID() + " cannot move towards HQ, trying random.");
+        }
     }
 
     public Direction getDepositDir(Direction In) {
         Direction depDir = null;
+
         switch(In) {
             case NORTH:     depDir = Direction.EAST;
                             break;
@@ -121,7 +142,7 @@ class LandscaperRobot extends RobotFramework {
         waitforcooldown();
         System.out.println("Landscaper "+ rc.getID() +"moving around HQ to the " + dirTo);
         if (!tryMoveSafe(dirTo)) {
-            tryMoveSafe(randomDirection());
+            trySaunterSafe(dirTo);
         }
     }
 
