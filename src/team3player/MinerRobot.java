@@ -97,7 +97,7 @@ class MinerRobot extends RobotFramework {
         tryRefine(Direction.CENTER);
         gatherer();
     }
-    void builder() {
+    void builder()throws GameActionException {
         //if there is no DS
         if (numOfDesignSchools == 0) {
             moveToGoodDSArea();
@@ -110,16 +110,90 @@ class MinerRobot extends RobotFramework {
         gatherer();
     }
 
-    void moveToGoodDSArea() {
-
+    void moveToGoodDSArea()throws GameActionException {
+        while (tooFarFromHQ()) {
+            waitforcooldown();
+            Direction hqdir = rc.getLocation().directionTo(hqLoc);
+            boolean moved = tryMove(hqdir);
+            if (!moved) {
+                moved = tryMove(hqdir.rotateRight());
+            }
+            if (!moved) {
+                moved = tryMove(hqdir.rotateRight().rotateRight());
+            }
+            if (!moved) {
+                moved = tryMove(hqdir.rotateLeft());
+            }
+            if (!moved) {
+                moved = tryMove(hqdir.rotateLeft().rotateLeft());
+            }
+        }
+        while (tooCloseToHQ()) {
+            waitforcooldown();
+            Direction away = rc.getLocation().directionTo(hqLoc).opposite();
+            boolean moved = tryMove(away);
+            if (!moved) {
+                moved = tryMove(away.rotateRight());
+            }
+            if (!moved) {
+                moved = tryMove(away.rotateLeft());
+            }
+        }
+        buildDS();
     }
 
-    void buildDS() {
-
+    boolean tooFarFromHQ() {
+        final int maxdistanceHQ = 20;
+        if (rc.getLocation().distanceSquaredTo(hqLoc) > maxdistanceHQ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
-    void buildFC() {
+    boolean tooCloseToHQ() {
+        if (rc.getLocation().isAdjacentTo(hqLoc)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+    boolean DSGoodspot(MapLocation target) {
+        //needs to be less than 13 and more than 2 to hq
+        final int min =2;
+        final int max = 13;
+        int distancetoHQ = target.distanceSquaredTo(hqLoc);
+        if (min < distancetoHQ && distancetoHQ < max) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    void buildDS()throws GameActionException {
+        Direction dir = rc.getLocation().directionTo(hqLoc);
+        while (numOfDesignSchools == 0) {
+            waitforcooldown();
+            if (DSGoodspot(rc.getLocation().add(dir))) {
+                if (tryBuild(RobotType.DESIGN_SCHOOL, dir)) {
+                    numOfDesignSchools++;
+                }
+            }
+            dir = dir.rotateLeft();
+        }
+        return; // next turn
+    }
+
+    void buildFC()throws GameActionException {
+        Direction dir = directions[2]; //doesn't matter
+        while (numOfFulfillments == 0) {
+            if (tryBuild(RobotType.FULFILLMENT_CENTER, dir)) {
+                numOfFulfillments++;
+            } else {
+                dir = dir.rotateLeft();
+            }
+        }
     }
 
     public void myTurn() throws GameActionException {
