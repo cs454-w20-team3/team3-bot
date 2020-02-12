@@ -33,14 +33,14 @@ class MinerRobot extends RobotFramework {
             int soupLocIdx = (int) (soupLocs.length * Math.random());
             Direction dirToSoup = rc.getLocation().directionTo(soupLocs[soupLocIdx]);
             tryMoveSafe(dirToSoup);
-            getSoup();
         } else {
-            boolean ret = false;
-            do {
-                ret = lookForSoup();
-            } while (ret);
-            getSoup();
+            boolean found = false;
+            while (!found) {
+                waitforcooldown();
+                found = lookForSoup();
+            }
         }
+        getSoup();
     }
     boolean lookForSoup() throws GameActionException {
         tryMoveSafe(randomDirection());
@@ -55,18 +55,33 @@ class MinerRobot extends RobotFramework {
             return false;
     }
     void getSoup() throws GameActionException {
-        do {
+        final int refCost = 200;
+        while (rc.getSoupCarrying() != RobotType.MINER.soupLimit) {
+            waitforcooldown();
+            if ( rc.getTeamSoup() >= refCost ) {
+                if( !checkForRefinery())
+                    buildRefinery();
+            }
             tryMine(Direction.CENTER);
-        } while (rc.getSoupCarrying() == RobotType.MINER.soupLimit);
+        }
         processSoup();
     }
 
-    void checkForRefinery() {
-
+    boolean checkForRefinery() throws GameActionException {
+        for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
+            if (bot.getType() == RobotType.REFINERY) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    void buildRefinery() {
-
+    void buildRefinery() throws GameActionException {
+        for (Direction dir : directions) {
+            if (tryBuild(RobotType.REFINERY, dir)) {
+                break;
+            }
+        }
     }
 
     void processSoup() throws GameActionException {
@@ -199,27 +214,12 @@ class MinerRobot extends RobotFramework {
 
     public void myTurn() throws GameActionException {
         if (myType == MinerType.GATHERER) {
+            System.out.println("I am gatherer");
             gatherer();
         } else {
+            System.out.println("I am builder");
             builder();
         }
-    }
-    boolean tryMoveBuildTarget(RobotType targetType, int targetX, int targetY) throws GameActionException {
-        //The robot moves to target place and try to build targetType.
-        //If the robot succeed to build, moves back to HQ or random direction.
-        MapLocation tLoc = new MapLocation(targetX, targetY);
-        Direction dirToTarget = rc.getLocation().directionTo(tLoc);
-        tryMove(dirToTarget);
-        //try to build target
-        for (Direction dir : directions) {
-            if (tryBuild(targetType, dir)) {
-                Direction dirToHQ = rc.getLocation().directionTo(hqLoc);
-                if(!tryMove(dirToHQ))
-                    tryMove(randomDirection());
-                return true;
-            }
-        }
-        return false;
     }
     boolean tryRefine(Direction dir) throws GameActionException {
         if (rc.isReady() && rc.canDepositSoup(dir)) {
