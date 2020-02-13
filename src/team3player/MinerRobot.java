@@ -210,6 +210,29 @@ class MinerRobot extends RobotFramework {
             } else {
                 dir = dir.rotateLeft();
             }
+            dir = dir.rotateLeft();
+        }
+        return; // next turn
+    }
+
+    void buildFC()throws GameActionException {
+        Direction dir = directions[2]; //doesn't matter
+        while (numOfFulfillments == 0) {
+            if (tryBuild(RobotType.FULFILLMENT_CENTER, dir)) {
+                numOfFulfillments++;
+            } else {
+                dir = dir.rotateLeft();
+            }
+        }
+    }
+
+    public void myTurn() throws GameActionException {
+        if (myType == MinerType.GATHERER) {
+            System.out.println("I am gatherer");
+            gatherer();
+        } else {
+            System.out.println("I am builder");
+            builder();
         }
     }
 
@@ -287,6 +310,16 @@ class MinerRobot extends RobotFramework {
     }
     boolean tryMove(Direction dir)throws GameActionException {
         final int failed_attampts_limit = 3;
+        //sense for important buildings every move
+        for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
+            if (bot.getType() == RobotType.DELIVERY_DRONE) {
+                numOfDesignSchools++;
+                //this is going to keep going up sensing the same building but keeps us from making a whole bunch of them
+            }
+            if (bot.getType() == RobotType.FULFILLMENT_CENTER) {
+                numOfFulfillments++;
+            }
+        }
         if (super.tryMove(dir)) {
             failedMoves =0;
             return true;
