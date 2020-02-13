@@ -18,19 +18,37 @@ class DesignSchoolRobot extends RobotFramework {
         System.out.println("I'm located at " +dsLoc.x + ":" + dsLoc.y);
     }
     public void myTurn()throws GameActionException {
-        //logic to be run on every turn goes here
-        System.out.println("Design School doing stuff");
-        waitforcooldown();
-        if (hqDir != null && (tryBuild(RobotType.LANDSCAPER, hqDir))) {
-            numOfLandscapers++;
-        }
-        else {
-            for (Direction dir : directions) {
-                if (numOfLandscapers < maxNumOfLandscapers) {
-                    if (tryBuild(RobotType.LANDSCAPER, dir))
-                        numOfLandscapers++;
-                    else
-                        System.out.println("DS could not build landscaper");
+
+        if (numOfLandscapers < maxNumOfLandscapers) {
+            if (hqLoc != null) {
+                //we know where the hq is
+                Direction hqDir = rc.getLocation().directionTo(hqLoc);
+                boolean built = tryBuild(RobotType.LANDSCAPER, hqDir);
+                while (!built) {
+                    waitforcooldown();
+                    built = tryBuild(RobotType.LANDSCAPER, hqDir.rotateLeft());
+                    if (!built) {
+                        built = tryBuild(RobotType.LANDSCAPER, hqDir.rotateRight());
+                    }
+                    if (!built) {
+                        built = tryBuild(RobotType.LANDSCAPER, hqDir.rotateRight().rotateRight());
+                    }
+                    if (!built) {
+                        built = tryBuild(RobotType.LANDSCAPER, hqDir.rotateLeft().rotateLeft());
+                    }
+                    if (!built) {
+                        built = tryBuild(RobotType.LANDSCAPER, hqDir);
+                    }
+                }
+            } else {
+                //we don't know where the hq is
+                    for (Direction dir : directions) {
+                        if (numOfLandscapers < maxNumOfLandscapers) {
+                            if (tryBuild(RobotType.LANDSCAPER, dir))
+                                numOfLandscapers++;
+                            else
+                                System.out.println("DS could not build landscaper");
+                    }
                 }
             }
         }
