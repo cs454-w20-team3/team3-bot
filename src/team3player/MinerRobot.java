@@ -4,6 +4,7 @@ import battlecode.common.*;
 
 class MinerRobot extends RobotFramework {
     MapLocation hqLoc;
+    MapLocation refineLoc;
     int numOfDesignSchools;
     int numOfRefineries;
     MinerType myType;
@@ -135,6 +136,33 @@ class MinerRobot extends RobotFramework {
             System.out.println("I am builder");
             builder();
         }
+    }
+    boolean senseNearbyRefinery() throws GameActionException {
+        //Return true if the robot senses refinery nearby, otherwise return false.
+        for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
+            if (bot.getType() == RobotType.REFINERY) {
+                refineLoc = bot.getLocation();
+                return true;
+            }
+        }
+        return false;
+    }
+    boolean tryMoveBuildTarget(RobotType targetType, int targetX, int targetY) throws GameActionException {
+        //The robot moves to target place and try to build targetType.
+        //If the robot succeed to build, moves back to HQ or random direction.
+        MapLocation tLoc = new MapLocation(targetX, targetY);
+        Direction dirToTarget = rc.getLocation().directionTo(tLoc);
+        tryMove(dirToTarget);
+        //try to build target
+        for (Direction dir : directions) {
+            if (tryBuild(targetType, dir)) {
+                Direction dirToHQ = rc.getLocation().directionTo(hqLoc);
+                if(!tryMove(dirToHQ))
+                    tryMove(randomDirection());
+                return true;
+            }
+        }
+        return false;
     }
     boolean tryRefine(Direction dir) throws GameActionException {
         if (rc.isReady() && rc.canDepositSoup(dir)) {
