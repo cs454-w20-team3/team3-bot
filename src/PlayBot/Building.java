@@ -1,4 +1,4 @@
-package PlayBot;
+package playbot;
 import battlecode.common.*;
 
 public class Building extends Robot {
