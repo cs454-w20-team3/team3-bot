@@ -104,14 +104,14 @@ class MinerRobot extends RobotFramework {
         Direction dirToHq = rc.getLocation().directionTo(hqLoc);
         tryMoveSafe(dirToHq);
         tryRefine(Direction.CENTER);
-        gatherer();
+        return;
     }
 
     void goToRefinery(MapLocation refineLoc) throws GameActionException {
         Direction dirToRefine = rc.getLocation().directionTo(refineLoc);
         tryMoveSafe(dirToRefine);
         tryRefine(Direction.CENTER);
-        gatherer();
+        return;
     }
     void builder()throws GameActionException {
         //if there is no DS
@@ -124,7 +124,7 @@ class MinerRobot extends RobotFramework {
         }
         //otherwise become a gatherer
         myType = MinerType.GATHERER;
-        gatherer();
+        return;
     }
 
     void moveToGoodDSArea()throws GameActionException {
