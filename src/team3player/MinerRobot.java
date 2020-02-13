@@ -292,7 +292,7 @@ class MinerRobot extends RobotFramework {
         final int failed_attampts_limit = 3;
         //sense for important buildings every move
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
-            if (bot.getType() == RobotType.DELIVERY_DRONE) {
+            if (bot.getType() == RobotType.DESIGN_SCHOOL) {
                 numOfDesignSchools++;
                 //this is going to keep going up sensing the same building but keeps us from making a whole bunch of them
             }
