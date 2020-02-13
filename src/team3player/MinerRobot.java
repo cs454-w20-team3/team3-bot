@@ -215,26 +215,6 @@ class MinerRobot extends RobotFramework {
         return; // next turn
     }
 
-    void buildFC()throws GameActionException {
-        Direction dir = directions[2]; //doesn't matter
-        while (numOfFulfillments == 0) {
-            if (tryBuild(RobotType.FULFILLMENT_CENTER, dir)) {
-                numOfFulfillments++;
-            } else {
-                dir = dir.rotateLeft();
-            }
-        }
-    }
-
-    public void myTurn() throws GameActionException {
-        if (myType == MinerType.GATHERER) {
-            System.out.println("I am gatherer");
-            gatherer();
-        } else {
-            System.out.println("I am builder");
-            builder();
-        }
-    }
 
     public void myTurn() throws GameActionException {
         if (myType == MinerType.GATHERER) {
