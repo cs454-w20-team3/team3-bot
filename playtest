@@ -1,5 +1,5 @@
 #!/bin/bash
-./gradlew playtest -Pmaps=ALandDivided >> ./playtest.txt
+./gradlew playtest -Pmaps=ALandDivided > ./playtest.txt
 ./gradlew playtest -Pmaps=AMaze >> ./playtest.txt
 ./gradlew playtest -Pmaps=BeachFrontProperty >> ./playtest.txt
 ./gradlew playtest -Pmaps=CentralLake >> ./playtest.txt
