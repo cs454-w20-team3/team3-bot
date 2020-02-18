@@ -354,6 +354,7 @@ task buildMap(type: JavaExec, dependsOn: 'build') {
 }
 
 task codeCoverageReport(type: JacocoReport) {
+    group 'battlecode'
     executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
     sourceSets sourceSets.main
     subprojects.each {
@@ -376,6 +377,7 @@ codeCoverageReport.dependsOn {
 }
 
 task testCodeCoverage(type: JacocoCoverageVerification) {
+    group 'battlecode'
     executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
     sourceSets sourceSets.main
     subprojects.each {
