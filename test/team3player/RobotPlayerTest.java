@@ -142,4 +142,11 @@ public class RobotPlayerTest {
 		MinerRobot robot = new MinerRobot(rc);
 		//assertEquals(false,robot.senseNearbyRefinery());
 	}
+	//CHAD
+
+	//MI YON
+
+	//AVIN
+
+	//KYLE
 }
