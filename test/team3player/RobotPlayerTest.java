@@ -14,6 +14,9 @@ import battlecode.common.Team;
 import battlecode.common.RobotInfo;
 import battlecode.common.GameActionException;
 import battlecode.common.Direction;
+
+import java.util.Map;
+
 class Clock {
 	private static int mcount=0;
 	public static void yield() {
@@ -140,12 +143,70 @@ public class RobotPlayerTest {
 		//test case specific
 		when(rc.isReady()).thenReturn(true);
 		MinerRobot robot = new MinerRobot(rc);
-		//assertEquals(false,robot.senseNearbyRefinery());
+		assertEquals(false,robot.senseNearbyRefinery());
 	}
 	//CHAD
 
 	//MI YON
+/*	@Test
+	public void gathererTest()throws GameActionException  {
+		rc = mock(RobotController.class);
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		MapLocation loc = new MapLocation(0, 0);
+		MapLocation[] locResults = new MapLocation[1];
+		locResults[0]=loc;
+		when(rc.senseNearbySoup(any(MapLocation.class), anyInt())).thenReturn(locResults);
+		Direction dir = rc.getLocation().directionTo(loc);
+		MinerRobot robot = mock(MinerRobot.class);
+		when(robot.tryMoveSafe(dir)).thenReturn(true);
+		verify(robot, atLeastOnce()).gatherer();
+	}*/
 
+	@Test
+	public void lookForSoup_should_be_false()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		MinerRobot robot = new MinerRobot(rc);
+		when(rc.senseNearbySoup(any(MapLocation.class), anyInt())).thenReturn(new MapLocation[]{});
+		assertEquals(false,robot.lookForSoup());
+	}
+	@Test
+	public void lookForSoup_should_be_true()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		//MapLocation aloc = new MapLocation(0,0);
+		MapLocation[] locResults = {new MapLocation(0,0),new MapLocation(1,1)};
+		//locResults[0]=aloc;
+		MinerRobot robot = new MinerRobot(rc);
+		when(rc.senseNearbySoup(any(MapLocation.class), anyInt())).thenReturn(locResults);
+		Direction dir = rc.getLocation().directionTo(locResults[0]);
+		when(robot.tryMoveSafe(dir)).thenReturn(true);
+		//assertEquals(true,robot.lookForSoup());
+		//trying to assert but it returns false. How to get into if statement?
+	}
 	//AVIN
 
 	//KYLE
