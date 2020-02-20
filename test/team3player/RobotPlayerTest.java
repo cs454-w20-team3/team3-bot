@@ -203,8 +203,8 @@ public class RobotPlayerTest {
 		MinerRobot robot = new MinerRobot(rc);
 		when(rc.senseNearbySoup(any(MapLocation.class), anyInt())).thenReturn(locResults);
 		Direction dir = rc.getLocation().directionTo(locResults[0]);
-		when(robot.tryMoveSafe(dir)).thenReturn(true);
-		//assertEquals(true,robot.lookForSoup());
+		robot.tryMoveSafe(dir);
+		assertEquals(true,robot.lookForSoup());
 		//trying to assert but it returns false. How to get into if statement?
 	}
 
