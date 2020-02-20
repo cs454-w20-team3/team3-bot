@@ -124,7 +124,7 @@ public class RobotPlayerTest {
 		senseResults[0]=abot;
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(senseResults);
 		MinerRobot robot = new MinerRobot(rc);
-		//assertEquals(true,robot.senseNearbyRefinery());
+		assertEquals(true,robot.senseNearbyRefinery());
 	}
 	@Test
 	public void senseRefinery_should_be_false()throws GameActionException {
@@ -140,9 +140,66 @@ public class RobotPlayerTest {
 		//test case specific
 		when(rc.isReady()).thenReturn(true);
 		MinerRobot robot = new MinerRobot(rc);
-		//assertEquals(false,robot.senseNearbyRefinery());
+		assertEquals(false,robot.senseNearbyRefinery());
 	}
 	//CHAD
+	@Test
+	public void landscaperContstructorTest() {
+		rc = mock(RobotController.class);
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.LANDSCAPER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		LandscaperRobot robot = new LandscaperRobot(rc);
+		robot.idNearbyBots();
+		assertNull(robot.hqLoc);
+		assertNull(robot.baddyHqLoc);
+		assertNotNull(robot.myLoc);
+//		verify(rc).senseNearbyRobots(anyInt(), any(Team.class)); //without a second arguement defualts to called once
+	}
+	@Test
+	public void idNearbyBots_should_be_TwoHQs()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.LANDSCAPER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		//test case specific
+		RobotInfo abotA = mock(RobotInfo.class);
+		when(abotA.getType()).thenReturn(RobotType.HQ);
+		when(abotA.getTeam()).thenReturn(Team.A);
+		when(abotA.getLocation()).thenReturn(new MapLocation(1,1));
+		RobotInfo abotB = mock(RobotInfo.class);
+		when(abotB.getType()).thenReturn(RobotType.HQ);
+		when(abotB.getTeam()).thenReturn(Team.B);
+		when(abotB.getLocation()).thenReturn(new MapLocation(2,2));
+		RobotInfo[] senseResults = new RobotInfo[]{abotA, abotB};
+		when(rc.senseNearbyRobots(-1, Team.A)).thenReturn(senseResults);
+		LandscaperRobot robot = new LandscaperRobot(rc);
+//		when(robot.idNearbyBots()).thenCallRealMethod(robot.idNearbyBots());
+//		robot.idNearbyBots();
+		assertEquals(abotA.getLocation(),robot.hqLoc);
+		assertEquals(abotB.getLocation(),robot.baddyHqLoc);
+	}
+	@Test
+	public void dummyFunc_5() {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.LANDSCAPER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		LandscaperRobot bot = new LandscaperRobot(rc);
+		assertEquals(5, bot.dummyFunc());
+	}
 
 	//MI YON
 
