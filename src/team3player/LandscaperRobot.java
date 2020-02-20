@@ -22,10 +22,6 @@ class LandscaperRobot extends RobotFramework {
         fortifyHQ();
     }
 
-    public int dummyFunc() {
-        return 5;
-    }
-
     public boolean seekHQ()throws GameActionException {
         myLoc = rc.getLocation();
         while (hqLoc == null) {

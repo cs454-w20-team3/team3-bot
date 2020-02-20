@@ -142,6 +142,7 @@ public class RobotPlayerTest {
 		MinerRobot robot = new MinerRobot(rc);
 		assertEquals(false,robot.senseNearbyRefinery());
 	}
+
 	//CHAD
 	@Test
 	public void landscaperContstructorTest() {
@@ -187,7 +188,7 @@ public class RobotPlayerTest {
 		assertEquals(abotB.getLocation(),robot.baddyHqLoc);
 	}
 	@Test
-	public void dummyFunc_5() {
+	public void seekHQ_found() throws GameActionException {
 		rc = mock(RobotController.class);
 		//basic mock setup
 		when(rc.getTeam()).thenReturn(Team.A);
@@ -196,9 +197,20 @@ public class RobotPlayerTest {
 		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
 		when(rc.getRoundNum()).thenReturn(0);
 		when(rc.isReady()).thenReturn(true);
-		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
-		LandscaperRobot bot = new LandscaperRobot(rc);
-		assertEquals(5, bot.dummyFunc());
+		//test case specific
+		RobotInfo abotA = mock(RobotInfo.class);
+		when(abotA.getType()).thenReturn(RobotType.HQ);
+		when(abotA.getTeam()).thenReturn(Team.A);
+		when(abotA.getLocation()).thenReturn(new MapLocation(1,1));
+		RobotInfo abotB = mock(RobotInfo.class);
+		when(abotB.getType()).thenReturn(RobotType.HQ);
+		when(abotB.getTeam()).thenReturn(Team.B);
+		when(abotB.getLocation()).thenReturn(new MapLocation(2,2));
+		RobotInfo[] senseResults = new RobotInfo[]{abotA, abotB};
+		when(rc.senseNearbyRobots(-1, Team.A)).thenReturn(senseResults);
+		LandscaperRobot robot = new LandscaperRobot(rc);
+		when(robot.tryMoveSafe(any(Direction.class))).thenReturn(true);
+		assertEquals(true, robot.seekHQ());
 	}
 
 	//MI YON
