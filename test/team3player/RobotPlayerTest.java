@@ -142,4 +142,38 @@ public class RobotPlayerTest {
 		MinerRobot robot = new MinerRobot(rc);
 		//assertEquals(false,robot.senseNearbyRefinery());
 	}
+	//CHAD
+
+	//MI YON
+
+	//AVIN
+
+	//KYLE
+	@Test
+	public void FCconstructorTest() {
+		//this test checks that the Fullfillment center doesn't do anything during construction
+		rc = mock(RobotController.class);
+		when(rc.getTeam()).thenReturn(Team.A);
+        when(rc.getType()).thenReturn(RobotType.HQ); // TODO?!
+        when(rc.getID()).thenReturn(0);
+        when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		RobotFramework robot = new FCRobot(rc);
+		verify(rc, never()).resign(); //without a second arguement defualts to called once
+	}
+	@Test
+	public void FCmyTurn()throws GameActionException  {
+		//this test checks that the Fullfillment center doesn't do anything during construction
+		rc = mock(RobotController.class);
+		when(rc.getTeam()).thenReturn(Team.A);
+        when(rc.getType()).thenReturn(RobotType.HQ);
+        when(rc.getID()).thenReturn(0);
+        when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		RobotFramework robot = new FCRobot(rc);
+		robot.myTurn();
+		verify(rc, atMost(8)).buildRobot(any(RobotType.class), any(Direction.class)); 
+	}
 }
