@@ -127,7 +127,7 @@ public class RobotPlayerTest {
 		senseResults[0]=abot;
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(senseResults);
 		MinerRobot robot = new MinerRobot(rc);
-		//assertEquals(true,robot.senseNearbyRefinery());
+		assertEquals(true,robot.senseNearbyRefinery());
 	}
 	@Test
 	public void senseRefinery_should_be_false()throws GameActionException {
@@ -206,6 +206,22 @@ public class RobotPlayerTest {
 		when(robot.tryMoveSafe(dir)).thenReturn(true);
 		//assertEquals(true,robot.lookForSoup());
 		//trying to assert but it returns false. How to get into if statement?
+	}
+
+	@Test
+	public void FCConstruct_test()throws GameActionException  {
+		rc = mock(RobotController.class);
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.HQ); // TODO?!
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		FCRobot robot = new FCRobot(rc);
+		for (Direction dir : RobotFramework.directions) {
+			when(rc.isReady()).thenReturn(true);
+			assertEquals(false,robot.tryBuild(RobotType.DELIVERY_DRONE, dir));
+		}
 	}
 	//AVIN
 
