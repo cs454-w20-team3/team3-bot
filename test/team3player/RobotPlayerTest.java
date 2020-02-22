@@ -148,27 +148,6 @@ public class RobotPlayerTest {
 	//CHAD
 
 	//MI YON
-/*	@Test
-	public void gathererTest()throws GameActionException  {
-		rc = mock(RobotController.class);
-		when(rc.getTeam()).thenReturn(Team.A);
-		when(rc.getType()).thenReturn(RobotType.MINER);
-		when(rc.getID()).thenReturn(0);
-		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
-		when(rc.getRoundNum()).thenReturn(0);
-		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
-		//test case specific
-		when(rc.isReady()).thenReturn(true);
-		MapLocation loc = new MapLocation(0, 0);
-		MapLocation[] locResults = new MapLocation[1];
-		locResults[0]=loc;
-		when(rc.senseNearbySoup(any(MapLocation.class), anyInt())).thenReturn(locResults);
-		Direction dir = rc.getLocation().directionTo(loc);
-		MinerRobot robot = mock(MinerRobot.class);
-		when(robot.tryMoveSafe(dir)).thenReturn(true);
-		verify(robot, atLeastOnce()).gatherer();
-	}*/
-
 	@Test
 	public void lookForSoup_should_be_false()throws GameActionException {
 		rc = mock(RobotController.class);
@@ -182,7 +161,7 @@ public class RobotPlayerTest {
 		//test case specific
 		when(rc.isReady()).thenReturn(true);
 		MinerRobot robot = new MinerRobot(rc);
-		when(rc.senseNearbySoup(any(MapLocation.class), anyInt())).thenReturn(new MapLocation[]{});
+		when(rc.senseNearbySoup()).thenReturn(new MapLocation[]{});
 		assertEquals(false,robot.lookForSoup());
 	}
 	@Test
@@ -197,31 +176,12 @@ public class RobotPlayerTest {
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
 		//test case specific
 		when(rc.isReady()).thenReturn(true);
-		//MapLocation aloc = new MapLocation(0,0);
+		MapLocation aloc = new MapLocation(0,0);
 		MapLocation[] locResults = {new MapLocation(0,0),new MapLocation(1,1)};
-		//locResults[0]=aloc;
+		locResults[0]=aloc;
 		MinerRobot robot = new MinerRobot(rc);
-		when(rc.senseNearbySoup(any(MapLocation.class), anyInt())).thenReturn(locResults);
-		Direction dir = rc.getLocation().directionTo(locResults[0]);
-		robot.tryMoveSafe(dir);
+		when(rc.senseNearbySoup()).thenReturn(locResults);
 		assertEquals(true,robot.lookForSoup());
-		//trying to assert but it returns false. How to get into if statement?
-	}
-
-	@Test
-	public void FCConstruct_test()throws GameActionException  {
-		rc = mock(RobotController.class);
-		when(rc.getTeam()).thenReturn(Team.A);
-		when(rc.getType()).thenReturn(RobotType.HQ); // TODO?!
-		when(rc.getID()).thenReturn(0);
-		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
-		when(rc.getRoundNum()).thenReturn(0);
-		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
-		FCRobot robot = new FCRobot(rc);
-		for (Direction dir : RobotFramework.directions) {
-			when(rc.isReady()).thenReturn(true);
-			assertEquals(false,robot.tryBuild(RobotType.DELIVERY_DRONE, dir));
-		}
 	}
 	//AVIN
 
