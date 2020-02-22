@@ -17,7 +17,6 @@ class MinerRobot extends RobotFramework {
         super(rc_);
         //on robot creation/start up code goes here
         myType = determineMyType(10, 5, 1000);
-        System.out.println(myType);
         numOfDesignSchools = 0;
         numOfRefineries = 0;
         numOfFulfillments = 0;
@@ -44,7 +43,6 @@ class MinerRobot extends RobotFramework {
         getSoup();
     }
     boolean lookForSoup() throws GameActionException {
-        System.out.println("look for soup");
         tryMoveSafe(randomDirection());
         MapLocation[] soupLocs = rc.senseNearbySoup();
         if (soupLocs.length != 0) {
@@ -67,13 +65,11 @@ class MinerRobot extends RobotFramework {
     }
     void getSoup() throws GameActionException {
         final int refCost = 200;
-        System.out.println("getsoup");
         if (!isSoupNextToMe()) {
             return;
         }
         int soup = rc.getTeamSoup();
         if ( soup >= refCost ) {
-            System.out.println("I can afford a refinery");
             for (int i=0;i<5 && !checkForRefinery(); i++)
                 buildRefinery();
         }
@@ -111,7 +107,6 @@ class MinerRobot extends RobotFramework {
     }
 
     void buildRefinery() throws GameActionException {
-        System.out.println("I'm trying to build a refinery");
         for (Direction dir : directions) {
             waitforcooldown();
             if (!hqAdjacent(rc.getLocation().add(dir)))
@@ -130,7 +125,6 @@ class MinerRobot extends RobotFramework {
         }
     }
     void processSoup() throws GameActionException {
-        System.out.println("processing soup");
         if (refineLoc == null)
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.REFINERY) {
@@ -138,7 +132,6 @@ class MinerRobot extends RobotFramework {
                 break;
             }
         }
-
         if(refineLoc != null) {
             goToRefinery(refineLoc);
         } else {
@@ -164,7 +157,6 @@ class MinerRobot extends RobotFramework {
 
 
     void goToHQ() throws GameActionException {
-        System.out.println("going to hq to depost");
         moveNextTo(hqLoc);
         while (rc.getSoupCarrying() > 0)
         tryRefine(rc.getLocation().directionTo(hqLoc));
@@ -179,6 +171,7 @@ class MinerRobot extends RobotFramework {
     }
     void builder()throws GameActionException {
         if (numOfRefineries == 0) {
+            //if we don't have a refinery, be a gatherer
             gatherer();
             return;
         }
@@ -335,9 +328,7 @@ class MinerRobot extends RobotFramework {
     }
     MinerType determineMyType(int builderPercentageStart, int builderPercentageEnd, int lastRound){
         int currentRound = rc.getRoundNum();
-        System.out.println("current round " + currentRound);
         if (currentRound < 3) {
-            System.out.println("I'm the first miner, builder");
             return MinerType.BUILDER;
         }
         int id = rc.getID();
@@ -350,10 +341,8 @@ class MinerRobot extends RobotFramework {
             y = builderPercentageEnd;
         }
         if (id % 100 < y) {
-            System.out.println("I'm a builder");
             return MinerType.BUILDER;
         } else {
-            System.out.println("I'm a gatherer");
             return MinerType.GATHERER;
         }
     }
