@@ -16,8 +16,8 @@ class MinerRobot extends RobotFramework {
         //the parent class also has the old utility functions like tryMove which need rc
         super(rc_);
         //on robot creation/start up code goes here
-        // System.out.println("Miner:" + rc.getID() + " initialization");
-        myType = determineMyType(90, 20, 700);
+        myType = determineMyType(10, 5, 1000);
+        System.out.println(myType);
         numOfDesignSchools = 0;
         numOfRefineries = 0;
         numOfFulfillments = 0;
@@ -44,33 +44,66 @@ class MinerRobot extends RobotFramework {
         getSoup();
     }
     boolean lookForSoup() throws GameActionException {
+        System.out.println("look for soup");
         tryMoveSafe(randomDirection());
         MapLocation[] soupLocs = rc.senseNearbySoup();
         if (soupLocs.length != 0) {
             int soupLocIdx = (int) (soupLocs.length * Math.random());
-            Direction dirToSoup = rc.getLocation().directionTo(soupLocs[soupLocIdx]);
-            tryMoveSafe(dirToSoup);
-            return true;
+            moveNextTo(soupLocs[soupLocIdx]);
         }
-        else
+        return isSoupNextToMe();
+    }
+    boolean isSoupNextToMe()throws GameActionException {
+        int soupAmount=0;
+        for (Direction dir : directions) {
+            soupAmount+= rc.senseSoup(rc.getLocation().add(dir));
+        }
+        soupAmount += rc.senseSoup(rc.getLocation());
+        if (soupAmount > 0) {
+            return true;
+        } else {
             return false;
+        }
     }
     void getSoup() throws GameActionException {
         final int refCost = 200;
-        while (rc.getSoupCarrying() != RobotType.MINER.soupLimit) {
+        System.out.println("getsoup");
+        if (!isSoupNextToMe()) {
+            return;
+        }
+        int soup = rc.getTeamSoup();
+        if ( soup >= refCost ) {
+            System.out.println("I can afford a refinery");
+            for (int i=0;i<5 && !checkForRefinery(); i++)
+                buildRefinery();
+        }
+        int mysoup = rc.getSoupCarrying();
+        while (mysoup < RobotType.MINER.soupLimit && isSoupNextToMe()) {
             waitforcooldown();
-            if ( rc.getTeamSoup() >= refCost ) {
-                if( !checkForRefinery())
-                    buildRefinery();
-            }
-            tryMine(Direction.CENTER);
+            mineAdjacentSoup();
+            mysoup = rc.getSoupCarrying();
         }
         processSoup();
     }
 
+    void mineAdjacentSoup() throws GameActionException {
+        MapLocation loc = rc.getLocation();
+        for (Direction dir : Direction.values()) {
+            while (rc.senseSoup(loc.add(dir)) > 0) {
+                tryMine(dir);
+                if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
+                   return; 
+                }
+            }
+        }
+    }
+
+
     boolean checkForRefinery() throws GameActionException {
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.REFINERY) {
+                numOfRefineries++;
+                refineLoc = bot.getLocation();
                 return true;
             }
         }
@@ -78,42 +111,77 @@ class MinerRobot extends RobotFramework {
     }
 
     void buildRefinery() throws GameActionException {
+        System.out.println("I'm trying to build a refinery");
         for (Direction dir : directions) {
+            waitforcooldown();
+            if (!hqAdjacent(rc.getLocation().add(dir)))
             if (tryBuild(RobotType.REFINERY, dir)) {
-                break;
+                numOfRefineries++;
+                refineLoc = rc.getLocation().add(dir);
+                return;
             }
         }
     }
-
+    boolean hqAdjacent(MapLocation target) {
+        if (hqLoc.isAdjacentTo(target)){
+            return true;
+        } else {
+            return false;
+        }
+    }
     void processSoup() throws GameActionException {
-        MapLocation refineLoc = null;
+        System.out.println("processing soup");
+        if (refineLoc == null)
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.REFINERY) {
                 refineLoc = bot.getLocation();
                 break;
             }
         }
+
         if(refineLoc != null) {
             goToRefinery(refineLoc);
         } else {
             goToHQ();
         }
     }
+    void moveNextTo(MapLocation target) throws GameActionException{
+        //while I am not next to my target location
+        while (!rc.getLocation().isAdjacentTo(target)) {
+            //try to move towards it
+            waitforcooldown();
+            MapLocation curLoc = rc.getLocation();
+            Direction dir = curLoc.directionTo(target);
+            boolean moved = tryMove(dir);
+            while (!moved) {
+                if (!moved) moved = tryMove(dir.rotateRight());
+                if (!moved) moved = tryMove(dir.rotateRight().rotateRight());
+                if (!moved) moved = tryMove(dir.rotateLeft());
+                if (!moved) moved = tryMove(dir.rotateLeft().rotateLeft());
+            }
+        }
+    }
+
 
     void goToHQ() throws GameActionException {
-        Direction dirToHq = rc.getLocation().directionTo(hqLoc);
-        tryMoveSafe(dirToHq);
-        tryRefine(Direction.CENTER);
+        System.out.println("going to hq to depost");
+        moveNextTo(hqLoc);
+        while (rc.getSoupCarrying() > 0)
+        tryRefine(rc.getLocation().directionTo(hqLoc));
         return;
     }
 
     void goToRefinery(MapLocation refineLoc) throws GameActionException {
-        Direction dirToRefine = rc.getLocation().directionTo(refineLoc);
-        tryMoveSafe(dirToRefine);
-        tryRefine(Direction.CENTER);
+        moveNextTo(refineLoc);
+        while (rc.getSoupCarrying() > 0)
+        tryRefine(rc.getLocation().directionTo(refineLoc));
         return;
     }
     void builder()throws GameActionException {
+        if (numOfRefineries == 0) {
+            gatherer();
+            return;
+        }
         //if there is no DS
         if (numOfDesignSchools == 0) {
             moveToGoodDSArea();
@@ -218,10 +286,8 @@ class MinerRobot extends RobotFramework {
 
     public void myTurn() throws GameActionException {
         if (myType == MinerType.GATHERER) {
-            System.out.println("I am gatherer");
             gatherer();
         } else {
-            System.out.println("I am builder");
             builder();
         }
     }
@@ -269,6 +335,11 @@ class MinerRobot extends RobotFramework {
     }
     MinerType determineMyType(int builderPercentageStart, int builderPercentageEnd, int lastRound){
         int currentRound = rc.getRoundNum();
+        System.out.println("current round " + currentRound);
+        if (currentRound < 3) {
+            System.out.println("I'm the first miner, builder");
+            return MinerType.BUILDER;
+        }
         int id = rc.getID();
         //linear change from start to end
         double slope = Double.valueOf(builderPercentageEnd - builderPercentageStart) / Double.valueOf(lastRound - 1);
@@ -279,8 +350,10 @@ class MinerRobot extends RobotFramework {
             y = builderPercentageEnd;
         }
         if (id % 100 < y) {
+            System.out.println("I'm a builder");
             return MinerType.BUILDER;
         } else {
+            System.out.println("I'm a gatherer");
             return MinerType.GATHERER;
         }
     }

@@ -25,7 +25,7 @@ class HQRobot extends RobotFramework {
         //so increasing the coefficient means the HQ builds fewer miners, decreasing the coefficient means more miners are built
         //I'm sure this number will get tweaked alot especial once we start getting a wall built.
         //a reasonable range for the coefficient is like [0.3 - 2]
-        double coefficient = 0.5;
+        double coefficient = 2;
         //miners cost 70 units of soup to make
         final int minerCost = 70;
         // System.out.println("HQ bank level: " + numOfMiners * minerCost * coefficient);
