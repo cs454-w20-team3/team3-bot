@@ -71,14 +71,13 @@ class LandscaperRobot extends RobotFramework {
             int adjElevation = (rc.senseElevation(adjacent));
             lowElevation = Math.min(adjElevation, lowElevation);
             if (adjElevation == lowElevation) {
-                lowPoint = d;
+                lowPoint = rc.getLocation().directionTo(adjacent);
             }
         }
         if (tryMoveSafe(lowPoint)) {
             System.out.println("Landscaper " + rc.getID() + "moving towards HQ.");
         }
-        else {
-            trySaunterSafe(lowPoint);
+        else if (trySaunterSafe(lowPoint)) {
             System.out.println("Landscaper " + rc.getID() + " cannot move towards HQ, trying random.");
         }
     }
