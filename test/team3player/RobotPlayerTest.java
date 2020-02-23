@@ -110,7 +110,7 @@ public class RobotPlayerTest {
 		}
 	}
 	@Test
-	public void senseRefinery_should_be_true()throws GameActionException {
+	public void checkForRefinery_should_be_true()throws GameActionException {
 		//when rc.canmove = false and flooded = true canmovesafe should be false
 		rc = mock(RobotController.class);
 		//basic mock setup
@@ -127,10 +127,10 @@ public class RobotPlayerTest {
 		senseResults[0]=abot;
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(senseResults);
 		MinerRobot robot = new MinerRobot(rc);
-		assertEquals(true,robot.senseNearbyRefinery());
+		assertEquals(true,robot.checkForRefinery());
 	}
 	@Test
-	public void senseRefinery_should_be_false()throws GameActionException {
+	public void checkForRefinery_should_be_false()throws GameActionException {
 		//when rc.canmove = false and flooded = true canmovesafe should be false
 		rc = mock(RobotController.class);
 		//basic mock setup
@@ -143,7 +143,7 @@ public class RobotPlayerTest {
 		//test case specific
 		when(rc.isReady()).thenReturn(true);
 		MinerRobot robot = new MinerRobot(rc);
-		assertEquals(false,robot.senseNearbyRefinery());
+		assertEquals(false,robot.checkForRefinery());
 	}
 
 	//CHAD
@@ -456,7 +456,26 @@ public class RobotPlayerTest {
 
 	//MI YON
 	@Test
-	public void gathererTest()throws GameActionException {
+	public void Miner_myTurn()throws GameActionException  {
+		//this test checks that the Fullfillment center doesn't do anything during construction
+		rc = mock(RobotController.class);
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.HQ);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		when(rc.isReady()).thenReturn(true);
+		MinerRobot robot = new MinerRobot(rc);
+		robot.myType = MinerRobot.MinerType.GATHERER;
+		MapLocation[] locResults = {new MapLocation(0,0),new MapLocation(1,1)};
+		when(rc.senseNearbySoup()).thenReturn(locResults);
+		when(rc.getSoupCarrying()).thenReturn(RobotType.MINER.soupLimit);
+		robot.myTurn();
+		verify(rc, atMost(8)).buildRobot(any(RobotType.class), any(Direction.class));
+	}
+	@Test
+	public void tryMineTest_should_be_false()throws GameActionException {
 		rc = mock(RobotController.class);
 		//basic mock setup
 		when(rc.getTeam()).thenReturn(Team.A);
@@ -467,8 +486,114 @@ public class RobotPlayerTest {
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
 		//test case specific
 		when(rc.isReady()).thenReturn(true);
+		when(rc.canMineSoup(Direction.CENTER)).thenReturn(false);
+		MinerRobot robot = new MinerRobot(rc);
+		assertEquals(false,robot.tryMine(Direction.CENTER));
 	}
 
+	@Test
+	public void tryMineTest_should_be_true()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		when(rc.canMineSoup(Direction.CENTER)).thenReturn(true);
+		MinerRobot robot = new MinerRobot(rc);
+		assertEquals(true,robot.tryMine(Direction.CENTER));
+	}
+
+	@Test
+	public void getSoupTest_mine()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.getSoupCarrying()).thenReturn(RobotType.MINER.soupLimit-1);
+		when(rc.isReady()).thenReturn(true);
+		when(rc.getTeamSoup()).thenReturn(200);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		when(rc.canMineSoup(Direction.CENTER)).thenReturn(true);
+		when(rc.getSoupCarrying()).thenReturn(RobotType.MINER.soupLimit);
+		MinerRobot robot = new MinerRobot(rc);
+		robot.getSoup();
+	}
+
+	@Test
+	public void getSoupTest_notMine()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		when(rc.getSoupCarrying()).thenReturn(RobotType.MINER.soupLimit);
+
+		MinerRobot robot = new MinerRobot(rc);
+		robot.getSoup();
+	}
+	@Test
+	public void goToHQTest()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		when(rc.canMove(any(Direction.class))).thenReturn(true);
+		when(rc.senseFlooding(any(MapLocation.class))).thenReturn(false);
+		when(rc.canDepositSoup(Direction.CENTER)).thenReturn(true);
+		RobotInfo abotA = mock(RobotInfo.class);
+		when(abotA.getType()).thenReturn(RobotType.HQ);
+		when(abotA.getTeam()).thenReturn(Team.A);
+		when(abotA.getLocation()).thenReturn(new MapLocation(51, 51));
+		RobotInfo[] senseResults = new RobotInfo[]{abotA};
+		when(rc.senseNearbyRobots(-1, Team.A)).thenReturn(senseResults);
+		MinerRobot robot = new MinerRobot(rc);
+		robot.goToHQ();
+	}
+	@Test
+	public void goToRefineryTest()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		when(rc.canMove(any(Direction.class))).thenReturn(true);
+		when(rc.senseFlooding(any(MapLocation.class))).thenReturn(false);
+		when(rc.canDepositSoup(Direction.CENTER)).thenReturn(false);
+		RobotInfo abotA = mock(RobotInfo.class);
+		when(abotA.getType()).thenReturn(RobotType.REFINERY);
+		when(abotA.getTeam()).thenReturn(Team.A);
+		when(abotA.getLocation()).thenReturn(new MapLocation(51, 51));
+		RobotInfo[] senseResults = new RobotInfo[]{abotA};
+		when(rc.senseNearbyRobots(-1, Team.A)).thenReturn(senseResults);
+		MinerRobot robot = new MinerRobot(rc);
+		robot.goToRefinery(new MapLocation(51, 51));
+	}
 	@Test
 	public void lookForSoup_should_be_false()throws GameActionException {
 		rc = mock(RobotController.class);
@@ -497,9 +622,7 @@ public class RobotPlayerTest {
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
 		//test case specific
 		when(rc.isReady()).thenReturn(true);
-		MapLocation aloc = new MapLocation(0,0);
 		MapLocation[] locResults = {new MapLocation(0,0),new MapLocation(1,1)};
-		locResults[0]=aloc;
 		MinerRobot robot = new MinerRobot(rc);
 		when(rc.senseNearbySoup()).thenReturn(locResults);
 		assertEquals(true,robot.lookForSoup());
