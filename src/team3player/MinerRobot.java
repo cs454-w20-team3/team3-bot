@@ -35,7 +35,7 @@ class MinerRobot extends RobotFramework {
             Direction dirToSoup = rc.getLocation().directionTo(soupLocs[soupLocIdx]);
             tryMoveSafe(dirToSoup);
         } else {
-            boolean found = false;
+            boolean found = lookForSoup();
             while (!found) {
                 waitforcooldown();
                 found = lookForSoup();
@@ -224,16 +224,6 @@ class MinerRobot extends RobotFramework {
             System.out.println("I am builder");
             builder();
         }
-    }
-    boolean senseNearbyRefinery() throws GameActionException {
-        //Return true if the robot senses refinery nearby, otherwise return false.
-        for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
-            if (bot.getType() == RobotType.REFINERY) {
-                refineLoc = bot.getLocation();
-                return true;
-            }
-        }
-        return false;
     }
     boolean tryMoveBuildTarget(RobotType targetType, int targetX, int targetY) throws GameActionException {
         //The robot moves to target place and try to build targetType.
