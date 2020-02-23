@@ -456,6 +456,20 @@ public class RobotPlayerTest {
 
 	//MI YON
 	@Test
+	public void gathererTest()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+	}
+
+	@Test
 	public void lookForSoup_should_be_false()throws GameActionException {
 		rc = mock(RobotController.class);
 		//basic mock setup
