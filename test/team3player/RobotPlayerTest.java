@@ -455,7 +455,41 @@ public class RobotPlayerTest {
 
 
 	//MI YON
-
+	@Test
+	public void lookForSoup_should_be_false()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		MinerRobot robot = new MinerRobot(rc);
+		when(rc.senseNearbySoup()).thenReturn(new MapLocation[]{});
+		assertEquals(false,robot.lookForSoup());
+	}
+	@Test
+	public void lookForSoup_should_be_true()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		MapLocation aloc = new MapLocation(0,0);
+		MapLocation[] locResults = {new MapLocation(0,0),new MapLocation(1,1)};
+		locResults[0]=aloc;
+		MinerRobot robot = new MinerRobot(rc);
+		when(rc.senseNearbySoup()).thenReturn(locResults);
+		assertEquals(true,robot.lookForSoup());
+	}
 	//AVIN
 
 	//KYLE
