@@ -452,6 +452,82 @@ public class RobotPlayerTest {
 		assertEquals(Direction.SOUTH, robot.getDestinationDir(Direction.WEST));
 		assertEquals(Direction.WEST, robot.getDestinationDir(Direction.NORTHWEST));
 	}
+	@Test
+	public void test_DS_constructor() throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.DESIGN_SCHOOL);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		//test case specific
+		RobotInfo abotA = mock(RobotInfo.class);
+		when(abotA.getType()).thenReturn(RobotType.HQ);
+		when(abotA.getTeam()).thenReturn(Team.A);
+		when(abotA.getLocation()).thenReturn(new MapLocation(1,1));
+		RobotInfo[] senseResults = new RobotInfo[]{abotA};
+		when(rc.senseNearbyRobots(-1, Team.A)).thenReturn(senseResults);
+		DesignSchoolRobot robot = new DesignSchoolRobot(rc);
+		assertEquals(abotA.getLocation(),robot.hqLoc);
+	}
+	@Test
+	public void test_DS_myTurn_HQ() throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.DESIGN_SCHOOL);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		//test case specific
+		RobotInfo abotA = mock(RobotInfo.class);
+		when(abotA.getType()).thenReturn(RobotType.HQ);
+		when(abotA.getTeam()).thenReturn(Team.A);
+		when(abotA.getLocation()).thenReturn(new MapLocation(20,20));
+		RobotInfo[] senseResults = new RobotInfo[]{abotA};
+		when(rc.senseNearbyRobots(-1, Team.A)).thenReturn(senseResults);
+		when(rc.canBuildRobot(any(RobotType.class),any(Direction.class))).thenReturn(false,false, false, false, false, true);
+		DesignSchoolRobot robot = new DesignSchoolRobot(rc);
+		robot.myTurn();
+		verify(rc, atMost(5)).buildRobot(any(RobotType.class), any(Direction.class));
+	}
+	@Test
+	public void test_DS_myTurn_noHQ() throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.DESIGN_SCHOOL);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		//test case specific
+		RobotInfo abotA = mock(RobotInfo.class);
+		when(abotA.getType()).thenReturn(RobotType.HQ);
+		when(abotA.getTeam()).thenReturn(Team.A);
+		when(abotA.getLocation()).thenReturn(new MapLocation(20,20));
+		RobotInfo[] senseResults = new RobotInfo[]{abotA};
+		when(rc.senseNearbyRobots(-1, Team.A)).thenReturn(new RobotInfo[]{});
+		when(rc.canBuildRobot(any(RobotType.class),any(Direction.class))).thenReturn(false,false, false, false, false, true);
+		DesignSchoolRobot robot = new DesignSchoolRobot(rc);
+		robot.myTurn();
+		verify(rc, atMost(5)).buildRobot(any(RobotType.class), any(Direction.class));
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 	//MI YON
@@ -655,6 +731,6 @@ public class RobotPlayerTest {
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
 		RobotFramework robot = new FCRobot(rc);
 		robot.myTurn();
-		verify(rc, atMost(8)).buildRobot(any(RobotType.class), any(Direction.class)); 
+		verify(rc, atMost(8)).buildRobot(any(RobotType.class), any(Direction.class));
 	}
 }

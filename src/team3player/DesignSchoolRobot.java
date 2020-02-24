@@ -22,7 +22,7 @@ class DesignSchoolRobot extends RobotFramework {
         if (numOfLandscapers < maxNumOfLandscapers) {
             if (hqLoc != null) {
                 //we know where the hq is
-                Direction hqDir = rc.getLocation().directionTo(hqLoc);
+                hqDir = rc.getLocation().directionTo(hqLoc);
                 boolean built = tryBuild(RobotType.LANDSCAPER, hqDir);
                 while (!built) {
                     waitforcooldown();
