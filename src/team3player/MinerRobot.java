@@ -13,7 +13,7 @@ class MinerRobot extends RobotFramework {
 
     MinerRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
-        //the parent class also has the old utility functions like tryMove which need rc
+        //the parent class also has the old utility functions like tryMoveSafe which need rc
         super(rc_);
         //on robot creation/start up code goes here
         myType = determineMyType(10, 5, 1000);
@@ -145,12 +145,12 @@ class MinerRobot extends RobotFramework {
             waitforcooldown();
             MapLocation curLoc = rc.getLocation();
             Direction dir = curLoc.directionTo(target);
-            boolean moved = tryMove(dir);
+            boolean moved = tryMoveSafe(dir);
             while (!moved) {
-                if (!moved) moved = tryMove(dir.rotateRight());
-                if (!moved) moved = tryMove(dir.rotateRight().rotateRight());
-                if (!moved) moved = tryMove(dir.rotateLeft());
-                if (!moved) moved = tryMove(dir.rotateLeft().rotateLeft());
+                if (!moved) moved = tryMoveSafe(dir.rotateRight());
+                if (!moved) moved = tryMoveSafe(dir.rotateRight().rotateRight());
+                if (!moved) moved = tryMoveSafe(dir.rotateLeft());
+                if (!moved) moved = tryMoveSafe(dir.rotateLeft().rotateLeft());
             }
         }
     }
@@ -192,29 +192,29 @@ class MinerRobot extends RobotFramework {
         while (tooFarFromHQ()) {
             waitforcooldown();
             Direction hqdir = rc.getLocation().directionTo(hqLoc);
-            boolean moved = tryMove(hqdir);
+            boolean moved = tryMoveSafe(hqdir);
             if (!moved) {
-                moved = tryMove(hqdir.rotateRight());
+                moved = tryMoveSafe(hqdir.rotateRight());
             }
             if (!moved) {
-                moved = tryMove(hqdir.rotateRight().rotateRight());
+                moved = tryMoveSafe(hqdir.rotateRight().rotateRight());
             }
             if (!moved) {
-                moved = tryMove(hqdir.rotateLeft());
+                moved = tryMoveSafe(hqdir.rotateLeft());
             }
             if (!moved) {
-                moved = tryMove(hqdir.rotateLeft().rotateLeft());
+                moved = tryMoveSafe(hqdir.rotateLeft().rotateLeft());
             }
         }
         while (tooCloseToHQ()) {
             waitforcooldown();
             Direction away = rc.getLocation().directionTo(hqLoc).opposite();
-            boolean moved = tryMove(away);
+            boolean moved = tryMoveSafe(away);
             if (!moved) {
-                moved = tryMove(away.rotateRight());
+                moved = tryMoveSafe(away.rotateRight());
             }
             if (!moved) {
-                moved = tryMove(away.rotateLeft());
+                moved = tryMoveSafe(away.rotateLeft());
             }
         }
         buildDS();
@@ -299,13 +299,13 @@ class MinerRobot extends RobotFramework {
         //If the robot succeed to build, moves back to HQ or random direction.
         MapLocation tLoc = new MapLocation(targetX, targetY);
         Direction dirToTarget = rc.getLocation().directionTo(tLoc);
-        tryMove(dirToTarget);
+        tryMoveSafe(dirToTarget);
         //try to build target
         for (Direction dir : directions) {
             if (tryBuild(targetType, dir)) {
                 Direction dirToHQ = rc.getLocation().directionTo(hqLoc);
-                if(!tryMove(dirToHQ))
-                    tryMove(randomDirection());
+                if(!tryMoveSafe(dirToHQ))
+                    tryMoveSafe(randomDirection());
                 return true;
             }
         }
@@ -350,7 +350,7 @@ class MinerRobot extends RobotFramework {
         RobotType possible[] = {RobotType.VAPORATOR, RobotType.FULFILLMENT_CENTER, RobotType.DESIGN_SCHOOL};
         return possible[rc.getID() & possible.length];
     }
-    boolean tryMove(Direction dir)throws GameActionException {
+    boolean tryMoveSafe(Direction dir)throws GameActionException {
         final int failed_attampts_limit = 3;
         //sense for important buildings every move
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
@@ -362,7 +362,7 @@ class MinerRobot extends RobotFramework {
                 numOfFulfillments++;
             }
         }
-        if (super.tryMove(dir)) {
+        if (super.tryMoveSafe(dir)) {
             failedMoves =0;
             return true;
         } else {
