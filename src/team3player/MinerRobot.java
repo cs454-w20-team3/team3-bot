@@ -10,6 +10,7 @@ class MinerRobot extends RobotFramework {
     int numOfRefineries;
     MinerType myType;
     int numOfFulfillments;
+    int startRound;
 
     MinerRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
@@ -20,6 +21,7 @@ class MinerRobot extends RobotFramework {
         numOfDesignSchools = 0;
         numOfRefineries = 0;
         numOfFulfillments = 0;
+        startRound= rc.getRoundNum();
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
             if (bot.getType() == RobotType.HQ) {
                 hqLoc = bot.getLocation();
@@ -284,23 +286,7 @@ class MinerRobot extends RobotFramework {
             builder();
         }
     }
-    boolean tryMoveBuildTarget(RobotType targetType, int targetX, int targetY) throws GameActionException {
-        //The robot moves to target place and try to build targetType.
-        //If the robot succeed to build, moves back to HQ or random direction.
-        MapLocation tLoc = new MapLocation(targetX, targetY);
-        Direction dirToTarget = rc.getLocation().directionTo(tLoc);
-        tryMoveSafe(dirToTarget);
-        //try to build target
-        for (Direction dir : directions) {
-            if (tryBuild(targetType, dir)) {
-                Direction dirToHQ = rc.getLocation().directionTo(hqLoc);
-                if(!tryMoveSafe(dirToHQ))
-                    tryMoveSafe(randomDirection());
-                return true;
-            }
-        }
-        return false;
-    }
+    
     boolean tryRefine(Direction dir) throws GameActionException {
         if (rc.isReady() && rc.canDepositSoup(dir)) {
             rc.depositSoup(dir, rc.getSoupCarrying());
@@ -356,7 +342,10 @@ class MinerRobot extends RobotFramework {
             failedMoves =0;
             return true;
         } else {
-            failedMoves++;
+            if (rc.getRoundNum() - startRound > 10)
+            {
+                failedMoves++;
+            }
             if (failedMoves > failed_attampts_limit) {
                 if (rc.getLocation().isAdjacentTo(hqLoc)){
                     rc.disintegrate();
