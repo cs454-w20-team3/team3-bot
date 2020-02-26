@@ -782,17 +782,6 @@ public class RobotPlayerTest {
 			MinerRobot robot = new MinerRobot(rc);
 			assertEquals(false,robot.isSoupNextToMe());
 	}
-		// void mineAdjacentSoup() throws GameActionException {
-    //     MapLocation loc = rc.getLocation();
-    //     for (Direction dir : Direction.values()) {
-    //         while (rc.senseSoup(loc.add(dir)) > 0) {
-    //             tryMine(dir);
-    //             if (rc.getSoupCarrying() == RobotType.MINER.soupLimit) {
-    //                return; 
-    //             }
-    //         }
-    //     }
-	// }
 	@Test
 	public void mineAdjacentSoup_test()throws GameActionException   {
 			MapLocation myLoc = new MapLocation(0,0);
@@ -819,32 +808,6 @@ public class RobotPlayerTest {
 			// verify(rc).senseNearbyRobots(anyInt(), any(Team.class));
 			verify(rc, times(2)).mineSoup(any(Direction.class));
 	}
-	// boolean tryMoveSafe(Direction dir)throws GameActionException {
-    //     final int failed_attampts_limit = 3;
-    //     //sense for important buildings every move
-    //     for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam())) {
-    //         if (bot.getType() == RobotType.DESIGN_SCHOOL) {
-    //             numOfDesignSchools++;
-    //             //this is going to keep going up sensing the same building but keeps us from making a whole bunch of them
-    //         }
-    //         if (bot.getType() == RobotType.FULFILLMENT_CENTER) {
-    //             numOfFulfillments++;
-    //         }
-    //     }
-    //     if (super.tryMoveSafe(dir)) {
-    //         failedMoves =0;
-    //         return true;
-    //     } else {
-    //         if (rc.getRoundNum() - startRound > 10)
-    //         failedMoves++;
-    //         if (failedMoves > failed_attampts_limit) {
-    //             if (rc.getLocation().isAdjacentTo(hqLoc)){
-    //                 rc.disintegrate();
-    //             }
-    //         }
-    //         return false;
-    //     }
-	// }
 	@Test
 	public void minerCanMoveSafe_selfdestruct()throws GameActionException   {
 			System.out.println("start of destruct test");
@@ -878,5 +841,34 @@ public class RobotPlayerTest {
 			assert(!robot.tryMoveSafe(Direction.NORTH));
 			assert(!robot.tryMoveSafe(Direction.NORTH));
 			verify(rc).disintegrate();
+	}
+	@Test
+	public void HQconstructorTest() {
+		//this test checks that the Fullfillment center doesn't do anything during construction
+		rc = mock(RobotController.class);
+		when(rc.isReady()).thenReturn(true);
+		when(rc.getTeam()).thenReturn(Team.A);
+        when(rc.getType()).thenReturn(RobotType.HQ); // TODO?!
+        when(rc.getID()).thenReturn(0);
+        when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		RobotFramework robot = new HQRobot(rc);
+		verify(rc, never()).resign(); //without a second arguement defualts to called once
+	}
+	@Test
+	public void HQmyTurn()throws GameActionException  {
+		//this test checks that the Fullfillment center doesn't do anything during construction
+		rc = mock(RobotController.class);
+		when(rc.isReady()).thenReturn(true);
+		when(rc.getTeam()).thenReturn(Team.A);
+        when(rc.getType()).thenReturn(RobotType.HQ);
+        when(rc.getID()).thenReturn(0);
+        when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		RobotFramework robot = new HQRobot(rc);
+		robot.myTurn();
+		verify(rc, atMost(8)).buildRobot(any(RobotType.class), any(Direction.class));
 	}
 }
