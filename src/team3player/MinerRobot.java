@@ -12,6 +12,7 @@ class MinerRobot extends RobotFramework {
     int numOfFulfillments;
 
     int numOfNetGuns = 0;
+    int numOfVaporizers = 0;
     int startRound;
 
     MinerRobot(RobotController rc_) {
@@ -197,6 +198,10 @@ class MinerRobot extends RobotFramework {
             tryBuildNetGun();
         }
 
+        // build appropriate vaporizers
+        if (numOfVaporizers == 0) {
+            tryBuildVape();
+        }
         //otherwise become a gatherer
         myType = MinerType.GATHERER;
         return;
@@ -292,6 +297,18 @@ class MinerRobot extends RobotFramework {
             Direction dir = rc.getLocation().directionTo(hqLoc);
             if (tryBuild(RobotType.NET_GUN, dir)) {
                 numOfNetGuns++;
+            }
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    int tryBuildVape() throws GameActionException {
+        if (rc.getRoundNum() > 9999999) {
+            Direction dir = rc.getLocation().directionTo(hqLoc);
+            if (tryBuild(RobotType.VAPORATOR, dir)) {
+                numOfVaporizers++;
             }
             return 1;
         } else {
