@@ -11,6 +11,7 @@ class HQRobot extends RobotFramework {
     }
     public void myTurn() throws GameActionException {
         waitforcooldown();
+        sendHqMssg();
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
             if (rc.canShootUnit(bot.ID)) {
                 rc.shootUnit(bot.ID);
