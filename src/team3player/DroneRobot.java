@@ -38,6 +38,8 @@ class DroneRobot extends RobotFramework {
                         tryMove(randomDirection());
                     }
                 }
+            } else {
+                tryMove(randomDirection());
             }
         } else {
             // No close robots, so search for robots within sight radius
