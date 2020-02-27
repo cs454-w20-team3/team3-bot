@@ -1,17 +1,25 @@
 package team3player;
 import battlecode.common.*;
+
 public abstract class RobotFramework {
     public RobotController rc;
     static Direction[] directions = {
-        Direction.NORTH,
-        Direction.NORTHEAST,
-        Direction.EAST,
-        Direction.SOUTHEAST,
-        Direction.SOUTH,
-        Direction.SOUTHWEST,
-        Direction.WEST,
-        Direction.NORTHWEST
+            Direction.NORTH,
+            Direction.NORTHEAST,
+            Direction.EAST,
+            Direction.SOUTHEAST,
+            Direction.SOUTH,
+            Direction.SOUTHWEST,
+            Direction.WEST,
+            Direction.NORTHWEST
     };
+    static final int teamSecret = 123456;
+    static final String[] messageType = {
+            "HQ loc",
+            "design school created",
+            "soup location",
+    };
+
     RobotFramework(RobotController rc_) {
         rc=rc_;
     }
@@ -76,4 +84,22 @@ public abstract class RobotFramework {
         }
         return true;
     }
+
+    public int sendHqMssg() throws GameActionException {
+        int cost = (rc.getRoundNum() / 100);
+        int fake_x = rc.getMapWidth() / 2;// x coord of fake coords
+        int fake_y = rc.getMapHeight() / 2;// y coord of fake coords
+        int[] message = new int[7];
+        message[0] = teamSecret;
+        message[1] = 0;
+        message[2] = (int) (fake_x + (Math.random()*10));
+        message[3] = (int) (fake_y + (Math.random()*10));
+        message[4] = (int) (fake_y - (Math.random()*10));
+        message[5] = (int) (fake_x - (Math.random()*10));
+        message[6] = teamSecret;
+        if (rc.canSubmitTransaction(message, cost))
+            rc.submitTransaction(message, cost);
+        return 1;
+    }
+
 }
