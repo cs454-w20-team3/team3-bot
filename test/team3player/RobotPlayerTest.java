@@ -705,7 +705,7 @@ public class RobotPlayerTest {
 //		assertEquals(true,robot.lookForSoup());
 //	}
 
-	}
+
 	@Test
 	public void lookForSoup_should_be_false()throws GameActionException {
 		rc = mock(RobotController.class);
