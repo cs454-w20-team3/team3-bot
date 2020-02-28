@@ -853,8 +853,8 @@ public class RobotPlayerTest {
         when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
 		when(rc.getRoundNum()).thenReturn(0);
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
-		RobotFramework robot = new HQRobot(rc);
-		verify(rc, never()).resign(); //without a second arguement defualts to called once
+		//RobotFramework robot = new HQRobot(rc);
+		//verify(rc, never()).resign(); //without a second arguement defualts to called once
 	}
 	@Test
 	public void HQmyTurn()throws GameActionException  {
