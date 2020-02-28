@@ -316,17 +316,6 @@ class MinerRobot extends RobotFramework {
         }
     }
 
-    int tryBuildVape() throws GameActionException {
-        if (rc.getRoundNum() > 9999999) {
-            Direction dir = rc.getLocation().directionTo(hqLoc);
-            if (tryBuild(RobotType.VAPORATOR, dir)) {
-                numOfVaporizers++;
-            }
-            return 1;
-        } else {
-            return 0;
-        }
-    }
 
     void buildFC()throws GameActionException {
         Direction dir = directions[2]; //doesn't matter
