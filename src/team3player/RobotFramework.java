@@ -102,4 +102,34 @@ public abstract class RobotFramework {
         return 1;
     }
 
+    public int sendHqMssg(int enemySecret) throws GameActionException {
+        int cost = (rc.getRoundNum() / 100);
+        int fake_x = rc.getMapWidth() / 2;// x coord of fake coords
+        int fake_y = rc.getMapHeight() / 2;// y coord of fake coords
+        int[] message = new int[7];
+        message[0] = enemySecret;
+        message[1] = 0;
+        message[2] = (int) (fake_x + (Math.random()*10));
+        message[3] = (int) (fake_y + (Math.random()*10));
+        message[4] = (int) (fake_y - (Math.random()*10));
+        message[5] = (int) (fake_x - (Math.random()*10));
+        message[6] = teamSecret;
+        if (rc.canSubmitTransaction(message, 5))
+            rc.submitTransaction(message, 5);
+        return 1;
+    }
+    public int getMsgFromBlockchain() throws GameActionException {
+        for (int i = 1; i < rc.getRoundNum(); i++){
+            for(Transaction tx : rc.getBlock(i)) {
+                int[] mess = tx.getMessage();
+                for(int j = 0; j < mess.length; j++) {
+                    if(mess[j] > 63)
+                        return mess[j];
+                }
+
+            }
+        }
+        return -1;
+    }
+
 }
