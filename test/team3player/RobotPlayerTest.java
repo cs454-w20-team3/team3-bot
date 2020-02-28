@@ -16,6 +16,7 @@ import battlecode.common.GameActionException;
 import battlecode.common.Direction;
 
 import javax.security.auth.callback.LanguageCallback;
+import java.util.Map;
 
 class Clock {
 	private static int mcount=0;
@@ -703,7 +704,82 @@ public class RobotPlayerTest {
 //		when(rc.senseNearbySoup()).thenReturn(locResults);
 //		assertEquals(true,robot.lookForSoup());
 //	}
-	//AVIN
+
+
+	@Test
+	public void lookForSoup_should_be_false()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		MinerRobot robot = new MinerRobot(rc);
+		when(rc.senseNearbySoup()).thenReturn(new MapLocation[]{});
+		assertEquals(false,robot.lookForSoup());
+	}
+	@Test
+	public void lookForSoup_should_be_true()throws GameActionException {
+		MapLocation myLoc = new MapLocation(0,0);
+		MapLocation hqLoc = new MapLocation(1,0);
+		assert(myLoc.isAdjacentTo(hqLoc));
+    rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+    //test case specific
+		when(rc.isReady()).thenReturn(true);
+		MapLocation[] locResults = {new MapLocation(0,0),new MapLocation(1,1)};
+		when(rc.senseNearbySoup()).thenReturn(locResults);
+		when(rc.senseSoup(myLoc)).thenReturn(3);
+		MinerRobot robot = new MinerRobot(rc);
+		assertEquals(true,robot.lookForSoup());
+	}
+	@Test
+	public void tryRefineTest()throws GameActionException {
+    rc = mock(RobotController.class);
+    when(rc.getTeam()).thenReturn(Team.A);
+    when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+    when(rc.isReady()).thenReturn(true);
+		when(rc.canMove(any(Direction.class))).thenReturn(true);
+		when(rc.senseFlooding(any(MapLocation.class))).thenReturn(false);
+		when(rc.canDepositSoup(Direction.CENTER)).thenReturn(false);
+		MinerRobot robot = new MinerRobot(rc);
+		assertEquals(false,robot.tryRefine(Direction.CENTER));
+	}
+	@Test
+	public void tryRefineTest_should_be_true()throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.MINER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		//test case specific
+		when(rc.isReady()).thenReturn(true);
+		when(rc.canMove(any(Direction.class))).thenReturn(true);
+		when(rc.senseFlooding(any(MapLocation.class))).thenReturn(false);
+		when(rc.canDepositSoup(Direction.CENTER)).thenReturn(true);
+		MinerRobot robot = new MinerRobot(rc);
+		assertEquals(true,robot.tryRefine(Direction.CENTER));
+	}
+
+
 
 	//KYLE
 	@Test
@@ -716,7 +792,7 @@ public class RobotPlayerTest {
         when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
 		when(rc.getRoundNum()).thenReturn(0);
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
-		RobotFramework robot = new FCRobot(rc);
+  	RobotFramework robot = new FCRobot(rc);
 		verify(rc, never()).resign(); //without a second arguement defualts to called once
 	}
 	@Test
@@ -729,7 +805,7 @@ public class RobotPlayerTest {
         when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
 		when(rc.getRoundNum()).thenReturn(0);
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
-		RobotFramework robot = new FCRobot(rc);
+    RobotFramework robot = new FCRobot(rc);
 		robot.myTurn();
 		verify(rc, atMost(8)).buildRobot(any(RobotType.class), any(Direction.class));
 	}
@@ -759,7 +835,6 @@ public class RobotPlayerTest {
 			MinerRobot robot = new MinerRobot(rc);
 			assertEquals(true,robot.isSoupNextToMe());
 	}
-
 	@Test
 	public void isSoupNextToMe_false()throws GameActionException   {
 			MapLocation myLoc = new MapLocation(0,0);
