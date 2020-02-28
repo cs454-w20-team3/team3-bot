@@ -3,17 +3,22 @@ import battlecode.common.*;
 class HQRobot extends RobotFramework {
     int numOfMiners = 0;
     final int maxNumOfMiners = 10;
+    int enemySecret = 444444444;
 
-    HQRobot(RobotController rc_) {
+    HQRobot(RobotController rc_) throws GameActionException {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
         super(rc_);
+        sendHqMssg(enemySecret);
+        //enemySecret = getMsgFromBlockchain();
     }
     public void myTurn() throws GameActionException {
         waitforcooldown();
-        if ((rc.getRoundNum() % 10) == 0) {
-            sendHqMssg();
-        }
+
+        /*if (enemySecret != -1 && (rc.getRoundNum() % 10) == 1) {
+            System.out.println("I got secret code from BC: " + enemySecret);
+            sendHqMssg(enemySecret);
+        }*/
         for (RobotInfo bot : rc.senseNearbyRobots(-1, rc.getTeam().opponent())) {
             if (rc.canShootUnit(bot.ID)) {
                 rc.shootUnit(bot.ID);
