@@ -19,8 +19,6 @@ public class Unit extends Robot {
     }
 
     public void findHQ() throws GameActionException {
-        if (hqLoc != null)
-            System.out.println("Unit has hqLoc:" + hqLoc.x +":" + hqLoc.y);
         if (hqLoc == null) {
             // search surroundings for HQ
             RobotInfo[] robots = rc.senseNearbyRobots();
