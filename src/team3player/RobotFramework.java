@@ -103,7 +103,7 @@ public abstract class RobotFramework {
     }
 
     public int sendHqMssg(int enemySecret) throws GameActionException {
-        int cost = (rc.getRoundNum() / 100);
+        int cost = 5;
         int fake_x = rc.getMapWidth() / 2;// x coord of fake coords
         int fake_y = rc.getMapHeight() / 2;// y coord of fake coords
         int[] message = new int[7];
@@ -114,8 +114,40 @@ public abstract class RobotFramework {
         message[4] = (int) (fake_y - (Math.random()*10));
         message[5] = (int) (fake_x - (Math.random()*10));
         message[6] = teamSecret;
-        if (rc.canSubmitTransaction(message, 5))
-            rc.submitTransaction(message, 5);
+        if (rc.canSubmitTransaction(message, cost))
+            rc.submitTransaction(message, cost);
+        return 1;
+    }
+    public int sendDSMssg(int enemySecret) throws GameActionException {
+        int cost = 5;
+        int fake_x = rc.getMapWidth() / 2;// x coord of fake coords
+        int fake_y = rc.getMapHeight() / 2;// y coord of fake coords
+        int[] message = new int[7];
+        message[0] = enemySecret;
+        message[1] = 1;
+        message[2] = (int) (fake_x + (Math.random()*10));
+        message[3] = (int) (fake_y + (Math.random()*10));
+        message[4] = (int) (fake_y - (Math.random()*10));
+        message[5] = (int) (fake_x - (Math.random()*10));
+        message[6] = teamSecret;
+        if (rc.canSubmitTransaction(message, cost))
+            rc.submitTransaction(message, cost);
+        return 1;
+    }
+    public int sendSoupMssg(int enemySecret) throws GameActionException {
+        int cost = 5;
+        int fake_x = rc.getMapWidth() / 2;// x coord of fake coords
+        int fake_y = rc.getMapHeight() / 2;// y coord of fake coords
+        int[] message = new int[7];
+        message[0] = enemySecret;
+        message[1] = 2;
+        message[2] = (int) (fake_x + (Math.random()*10));
+        message[3] = (int) (fake_y + (Math.random()*10));
+        message[4] = (int) (fake_y - (Math.random()*10));
+        message[5] = (int) (fake_x - (Math.random()*10));
+        message[6] = teamSecret;
+        if (rc.canSubmitTransaction(message, cost))
+            rc.submitTransaction(message, cost);
         return 1;
     }
     public int getMsgFromBlockchain() throws GameActionException {
