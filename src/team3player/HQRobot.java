@@ -5,7 +5,7 @@ class HQRobot extends RobotFramework {
     final int maxNumOfMiners = 10;
     int enemySecret = -1;
 
-    HQRobot(RobotController rc_) throws GameActionException {
+    HQRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
         super(rc_);
