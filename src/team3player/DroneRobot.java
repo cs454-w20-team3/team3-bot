@@ -1,49 +1,117 @@
 package team3player;
 import battlecode.common.*;
+import org.mockito.internal.matchers.Null;
+
 class DroneRobot extends RobotFramework {
     MapLocation hqLoc;
-
-    int hold;
+    Team myTeam;
+    Team enemyTeam;
+    Direction heading;
+    int targetBot;
+    MapLocation targetLoc;
+    Direction targetDir;
+    MapLocation[] water = new MapLocation[0]; //{};
+    RobotInfo[] robots = new RobotInfo[]{};
 
     DroneRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
         super(rc_);
-        //on robot creation/start up code goes here
+        myTeam = rc.getTeam();
+        enemyTeam = myTeam.opponent();
+        heading = randomDirection();
     }
+
     public void myTurn()throws GameActionException {
         //logic to be run on every turn goes here
-        Team enemy = rc.getTeam().opponent();
-        if (!rc.isCurrentlyHoldingUnit()) {
+        waitforcooldown();
+
+        while (!rc.isCurrentlyHoldingUnit()) {
+            waitforcooldown();
+            if (water.length == 0) {
+                findWater(rc.getLocation());
+            }
+
             // See if there are any enemy robots within capturing range
-            RobotInfo[] robots = rc.senseNearbyRobots(GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED, enemy);
+            robots = rc.senseNearbyRobots(GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED, enemyTeam);
 
-            if (robots.length > 0)
-            {
+            if (robots.length > 0) {
                 // Pick up a first robot within range
-                rc.pickUpUnit(robots[0].getID());
-                hold = 1;
-                System.out.println("I picked up " + robots[0].getID() + "!");
-
-                while (hold == 1)
-                {
-                    if ( (rc.senseFlooding(rc.getLocation().add(Direction.CENTER))) == true )
-                    {
-                        rc.dropUnit(Direction.CENTER);
-                        System.out.println("I dropped " + robots[0].getID() + "!");
-                        hold = 0;
-                    }
-                    else
-                    {
-                        tryMove(randomDirection());
-                    }
+                targetBot = robots[0].getID();
+                targetLoc = robots[0].getLocation();
+                while (!rc.canPickUpUnit(targetBot) && robots[0].getTeam() != null) {
+                    targetLoc = robots[0].getLocation();
+                    heading = moveNextTo(targetLoc);
+                }
+                if (rc.canPickUpUnit(targetBot)) {
+                    rc.pickUpUnit(targetBot);
+                    System.out.println("I picked up " + robots[0].getID() + "!");
+                } else {
+                    heading = moveNextTo(targetLoc);
                 }
             } else {
-                tryMove(randomDirection());
+                heading = moveNextTo(rc.adjacentLocation(heading));
             }
-        } else {
-            // No close robots, so search for robots within sight radius
-            tryMove(randomDirection());
         }
+
+        while (rc.isCurrentlyHoldingUnit()) {
+            if ((rc.senseFlooding(rc.getLocation().add(Direction.CENTER)))) {
+                if (rc.canDropUnit(Direction.CENTER)) {
+                    rc.dropUnit(Direction.CENTER);
+                    System.out.println("I dropped " + robots[0].getID() + "!");
+                }
+            } else if (water.length == 0) {
+                findWater(rc.getLocation());
+            } else {
+                heading = moveNextTo(water[0]);
+            }
+
+        }
+    }
+
+    Direction moveNextTo(MapLocation target) throws GameActionException{
+        //while I am not next to my target location
+        while (!rc.getLocation().isAdjacentTo(target)) {
+            //try to move towards it
+            waitforcooldown();
+            MapLocation curLoc = rc.getLocation();
+            Direction dir = curLoc.directionTo(target);
+            boolean moved = tryMove(dir);
+            while (!moved) {
+                if (!moved) {
+                    heading = dir.rotateRight();
+                    moved = tryMove(heading);
+                }
+                if (!moved) {
+                    heading = dir.rotateRight().rotateRight();
+                    moved = tryMove(heading);
+                }
+                if (!moved) {
+                    heading = dir.rotateLeft();
+                    moved = tryMove(heading);
+                }
+                if (!moved) {
+                    heading = dir.rotateLeft().rotateLeft();
+                    moved = tryMove(heading);
+                }
+            }
+        }
+    return heading;
+    }
+
+    int findWater(MapLocation loc) throws GameActionException {
+        for (Direction dir : Direction.values()) {
+            MapLocation newLoc = loc.add(dir);
+            if (loc.isWithinDistanceSquared(newLoc, 24)) {
+                if (rc.senseFlooding(newLoc)) {
+//                    IS THIS OK?
+                    water[0]=(newLoc);
+                    return 1;
+                }
+                waitforcooldown();
+                findWater(newLoc);
+            }
+        }
+        return 0;
     }
 }
