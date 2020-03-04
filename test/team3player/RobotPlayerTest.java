@@ -517,6 +517,53 @@ public class RobotPlayerTest {
 		robot.myTurn();
 		verify(rc, atMost(5)).buildRobot(any(RobotType.class), any(Direction.class));
 	}
+	@Test
+	public void test_NetGun() throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.NET_GUN);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		//test case specific
+		RobotInfo abotA = mock(RobotInfo.class);
+		when(abotA.getType()).thenReturn(RobotType.DELIVERY_DRONE);
+		when(abotA.getTeam()).thenReturn(Team.B);
+		when(abotA.getLocation()).thenReturn(new MapLocation(1,1));
+		when(abotA.getID()).thenReturn(1);
+		RobotInfo abotB = mock(RobotInfo.class);
+		when(abotB.getType()).thenReturn(RobotType.LANDSCAPER);
+		when(abotB.getTeam()).thenReturn(Team.B);
+		when(abotB.getLocation()).thenReturn(new MapLocation(2,2));
+		when(abotB.getID()).thenReturn(2);
+		RobotInfo[] senseResults = new RobotInfo[]{abotA, abotB};
+		when(rc.senseNearbyRobots(-1, Team.B)).thenReturn(senseResults, new RobotInfo[]{});
+//		when(rc.canShootUnit(abotA.getID())).thenReturn(true);
+//		when(rc.canShootUnit(abotB.getID())).thenReturn(false);
+		when(rc.canShootUnit(anyInt())).thenReturn(true, false);
+		NetGunRobot robot = new NetGunRobot(rc);
+		assertEquals(robot.myTeam, Team.A);
+		assertEquals(robot.enemyTeam, Team.B);
+		assertEquals(robot.kills, 0);
+		robot.myTurn();
+		robot.myTurn();
+		assertEquals(robot.kills, 1);
+		verify(rc, atMost(1)).shootUnit(anyInt());
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 	//MI YON
 	@Test
@@ -832,7 +879,7 @@ public class RobotPlayerTest {
         when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
 		when(rc.getRoundNum()).thenReturn(0);
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
-		RobotFramework robot = new HQRobot(rc);
+		//RobotFramework robot = new HQRobot(rc);
 		verify(rc, never()).resign(); //without a second arguement defualts to called once
 	}
 	@Test
@@ -848,6 +895,6 @@ public class RobotPlayerTest {
 		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
 		RobotFramework robot = new HQRobot(rc);
 		robot.myTurn();
-		verify(rc, atMost(8)).buildRobot(any(RobotType.class), any(Direction.class));
+		//verify(rc, atMost(8)).buildRobot(any(RobotType.class), any(Direction.class));
 	}
 }
