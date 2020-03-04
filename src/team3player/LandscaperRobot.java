@@ -4,7 +4,7 @@ class LandscaperRobot extends RobotFramework {
     MapLocation hqLoc; //this is initialized to null, if used it will create a null reference exception
     MapLocation baddyHqLoc; //location of enemy HQ
     MapLocation myLoc; //stores this bots location
-    
+
     LandscaperRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
         //the parent class also has the old utility functions like tryMove which need rc
@@ -45,6 +45,7 @@ class LandscaperRobot extends RobotFramework {
 //            if (hqLoc != null) goToLowPoint(dirHQ);
             digDepMove(dirDig, dirDep, dirTo);
         }
+        //else if its 2 spaces away and elevation is too high, help build the way from the outside
         else {
             if (distHQ > 2) {
                 System.out.println("distance over 2");
@@ -58,6 +59,49 @@ class LandscaperRobot extends RobotFramework {
             }
         }
     }
+
+    public static MapLocation[] adjacentLocUnion(MapLocation loc1, MapLocation loc2) {
+        if (loc1 == null || loc2 == null) {
+            return new MapLocation[]{};
+        }
+        if (!loc1.isWithinDistanceSquared(loc2,8)){
+            //if distance is larger than 8 there are no union adjacent locations
+            return new MapLocation[]{};
+        }
+        MapLocation[] results = new MapLocation[4];
+        //the maximum adjacent union is 4 locations
+        int index=0;
+
+        for (Direction dir : Direction.values()) {
+            if (dir == Direction.CENTER) {
+                continue;
+            }
+            MapLocation adj = loc1.add(dir);
+            if (adj.isAdjacentTo(loc2) && !adj.equals(loc2)) {
+                results[index]=adj;
+                index++;
+            }
+        }
+        return results;
+    }
+
+    public MapLocation minElev(MapLocation[] locs)throws GameActionException {
+        if (locs == null || locs.length == 0) {
+            return null;
+        }
+        MapLocation result = locs[0];
+        int min = rc.senseElevation(result);
+        for (int i=1; i< locs.length; i++) {
+            int cur = rc.senseElevation(locs[i]);
+            if (cur < min) {
+                result = locs[i];
+                min = cur;
+            }
+        }
+        return result;
+    }
+
+
 
     public void goToLowPoint(Direction dir) throws GameActionException {
         int lowElevation = 1000000;
@@ -126,20 +170,15 @@ class LandscaperRobot extends RobotFramework {
     }
 
     public void digDepMove(Direction dirDig, Direction dirDep, Direction dirTo) throws GameActionException {
-        System.out.println(("in the building zone"));
         waitforcooldown();
         if (rc.canDigDirt(dirDig)) {
             rc.digDirt(dirDig);
-            System.out.println("Landscaper "+ rc.getID() +"digging.");
         }
         waitforcooldown();
         if (rc.canDepositDirt(dirDep)) {
-            System.out.println("Landscaper "+ rc.getID() +"attempting deposit.");
             rc.depositDirt(dirDep);
-            System.out.println("Landscaper "+ rc.getID() +"depositing dirt.");
         }
         waitforcooldown();
-        System.out.println("Landscaper "+ rc.getID() +"moving around HQ to the " + dirTo);
         if (!tryMoveSafe(dirTo)) {
             trySaunterSafe(dirTo);
         }

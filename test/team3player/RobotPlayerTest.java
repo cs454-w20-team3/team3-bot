@@ -16,6 +16,7 @@ import battlecode.common.GameActionException;
 import battlecode.common.Direction;
 
 import javax.security.auth.callback.LanguageCallback;
+import java.util.Arrays;
 import java.util.Map;
 
 class Clock {
@@ -782,6 +783,48 @@ public class RobotPlayerTest {
 
 
 	//KYLE
+	@Test
+	public void minElevationTest() throws GameActionException{
+		rc = mock(RobotController.class);
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.LANDSCAPER);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.senseNearbyRobots(anyInt(), any(Team.class))).thenReturn(new RobotInfo[]{});
+		when(rc.senseElevation(any(MapLocation.class))).thenReturn(2,1,3);
+		LandscaperRobot robot = new LandscaperRobot(rc);
+		MapLocation[] locs = new MapLocation[3];
+		locs[0]=new MapLocation(1,1);
+		locs[1]=new MapLocation(10,10);
+		locs[0]=new MapLocation(14,14);
+		MapLocation actual = robot.minElev(locs);
+		assert(actual.equals(locs[1]));
+	}
+	@Test
+	public void adjacentUnionTests() {
+		MapLocation bla = new MapLocation(1,1);
+		assert(bla.isAdjacentTo(bla));
+		MapLocation[] expected1 = new MapLocation[4];
+		expected1[0] = new MapLocation(3,6);
+		MapLocation[] actual1 = LandscaperRobot.adjacentLocUnion(new MapLocation(4,5), new MapLocation(2,7));
+		assertArrayEquals(expected1, actual1);
+		MapLocation[] expected2 = new MapLocation[4];
+		expected2[0] = new MapLocation(3,4);
+		expected2[1] = new MapLocation(3,5);
+		MapLocation[] actual2 = LandscaperRobot.adjacentLocUnion(new MapLocation(4,4), new MapLocation(2,5));
+		assertArrayEquals(expected2, actual2);
+		MapLocation[] expected3 = new MapLocation[4];
+		expected3[0]= new MapLocation(2,3);
+		expected3[1]= new MapLocation(2,4);
+		expected3[2]= new MapLocation(4,3);
+		expected3[3]= new MapLocation(4,4);
+		System.out.println("start test");
+		MapLocation[] actual3 = LandscaperRobot.adjacentLocUnion(new MapLocation(3,4), new MapLocation(3,3));
+		Arrays.sort(actual3);
+		Arrays.sort(expected3);
+		assertArrayEquals(expected3, actual3);
+	}
 	@Test
 	public void FCconstructorTest() {
 		//this test checks that the Fullfillment center doesn't do anything during construction
