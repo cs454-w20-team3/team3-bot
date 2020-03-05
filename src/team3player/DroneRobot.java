@@ -10,7 +10,7 @@ class DroneRobot extends RobotFramework {
     int targetBot;
     MapLocation targetLoc;
     Direction targetDir;
-    MapLocation[] water = new MapLocation[0]; //{};
+    MapLocation water; //{};
     RobotInfo[] robots = new RobotInfo[]{};
 
     DroneRobot(RobotController rc_) {
@@ -28,12 +28,12 @@ class DroneRobot extends RobotFramework {
 
         while (!rc.isCurrentlyHoldingUnit()) {
             waitforcooldown();
-            if (water.length == 0) {
+            if (water == null) {
                 findWater(rc.getLocation());
             }
 
             // See if there are any enemy robots within capturing range
-            robots = rc.senseNearbyRobots(GameConstants.DELIVERY_DRONE_PICKUP_RADIUS_SQUARED, enemyTeam);
+            robots = rc.senseNearbyRobots(-1, enemyTeam);
 
             if (robots.length > 0) {
                 // Pick up a first robot within range
@@ -60,10 +60,10 @@ class DroneRobot extends RobotFramework {
                     rc.dropUnit(Direction.CENTER);
                     System.out.println("I dropped " + robots[0].getID() + "!");
                 }
-            } else if (water.length == 0) {
+            } else if (water == null) {
                 findWater(rc.getLocation());
             } else {
-                heading = moveNextTo(water[0]);
+                heading = moveNextTo(water);
             }
 
         }
@@ -71,12 +71,13 @@ class DroneRobot extends RobotFramework {
 
     Direction moveNextTo(MapLocation target) throws GameActionException{
         //while I am not next to my target location
-        while (!rc.getLocation().isAdjacentTo(target)) {
+        boolean moved = tryMove(rc.getLocation().directionTo(target));
+        /* while (!rc.getLocation().isAdjacentTo(target)) { */
+        while (!moved) {
             //try to move towards it
             waitforcooldown();
             MapLocation curLoc = rc.getLocation();
             Direction dir = curLoc.directionTo(target);
-            boolean moved = tryMove(dir);
             while (!moved) {
                 if (!moved) {
                     heading = dir.rotateRight();
@@ -105,7 +106,7 @@ class DroneRobot extends RobotFramework {
             if (loc.isWithinDistanceSquared(newLoc, 24)) {
                 if (rc.senseFlooding(newLoc)) {
 //                    IS THIS OK?
-                    water[0]=(newLoc);
+                    water = newLoc;
                     return 1;
                 }
                 waitforcooldown();
