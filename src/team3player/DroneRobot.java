@@ -33,37 +33,30 @@ class DroneRobot extends RobotFramework {
             }
 
             // See if there are any enemy robots within capturing range
-            robots = rc.senseNearbyRobots(-1, enemyTeam);
-            if (robots.length > 0) {
-                // Pick up a first robot within range
-                targetBot = robots[0].getID();
-                targetLoc = robots[0].getLocation();
-                while (!rc.canPickUpUnit(targetBot) && robots[0].getTeam() != null) {
-                    targetLoc = robots[0].getLocation();
-                    heading = moveNextTo(targetLoc);
-                }
-                if (rc.canPickUpUnit(targetBot)) {
+            robots = rc.senseNearbyRobots(-1);
+            for (RobotInfo bot : robots) {
+                targetBot = bot.getID();
+                if (bot.getTeam() != myTeam && rc.canPickUpUnit(targetBot)) {
                     rc.pickUpUnit(targetBot);
-                    System.out.println("I picked up " + robots[0].getID() + "!");
-                } else {
-                    heading = moveNextTo(targetLoc);
+                    System.out.println("I picked up " + targetBot + "!");
                 }
-            } else {
-                heading = moveNextTo(rc.adjacentLocation(heading));
             }
+            heading = moveNextTo(rc.adjacentLocation(heading));
         }
+
         while (rc.isCurrentlyHoldingUnit()) {
-            if ((rc.senseFlooding(rc.getLocation().add(Direction.CENTER)))) {
-                if (rc.canDropUnit(Direction.CENTER)) {
-                    rc.dropUnit(Direction.CENTER);
-                    System.out.println("I dropped " + robots[0].getID() + "!");
+            waitforcooldown();
+            for (Direction d : directions) {
+                if (rc.canDropUnit(d) && rc.senseFlooding(rc.getLocation().add(d))) {
+                    rc.dropUnit(d);
+                    System.out.println("I dropped " + targetBot + "!");
                 }
-            } else if (water == null) {
+            }
+            if (water == null) {
                 findWater(rc.getLocation());
             } else {
                 heading = moveNextTo(water);
             }
-
         }
     }
 
