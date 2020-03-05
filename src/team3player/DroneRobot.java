@@ -53,7 +53,6 @@ class DroneRobot extends RobotFramework {
                 heading = moveNextTo(rc.adjacentLocation(heading));
             }
         }
-
         while (rc.isCurrentlyHoldingUnit()) {
             if ((rc.senseFlooding(rc.getLocation().add(Direction.CENTER)))) {
                 if (rc.canDropUnit(Direction.CENTER)) {
@@ -84,7 +83,7 @@ class DroneRobot extends RobotFramework {
                     moved = tryMove(heading);
                 }
                 if (!moved) {
-                    heading = dir.rotateRight().rotateRight();
+                    heading = dir.rotateRight().rotateRight().rotateRight();
                     moved = tryMove(heading);
                 }
                 if (!moved) {
@@ -92,7 +91,7 @@ class DroneRobot extends RobotFramework {
                     moved = tryMove(heading);
                 }
                 if (!moved) {
-                    heading = dir.rotateLeft().rotateLeft();
+                    heading = dir.rotateLeft().rotateLeft().rotateLeft();
                     moved = tryMove(heading);
                 }
             }
@@ -100,19 +99,18 @@ class DroneRobot extends RobotFramework {
     return heading;
     }
 
-    int findWater(MapLocation loc) throws GameActionException {
+    void findWater(MapLocation loc) throws GameActionException {
         for (Direction dir : Direction.values()) {
             MapLocation newLoc = loc.add(dir);
-            if (loc.isWithinDistanceSquared(newLoc, 24)) {
-                if (rc.senseFlooding(newLoc)) {
-//                    IS THIS OK?
-                    water = newLoc;
-                    return 1;
-                }
-                waitforcooldown();
-                findWater(newLoc);
+            if (rc.senseFlooding(newLoc)) {
+                water = newLoc;
+                return;
             }
+//            if (rc.getLocation().isWithinDistanceSquared(newLoc, 24)) {
+//                waitforcooldown();
+//                findWater(newLoc);
+//            }
         }
-        return 0;
+        return;
     }
 }
