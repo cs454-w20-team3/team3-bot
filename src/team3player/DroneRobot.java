@@ -34,7 +34,6 @@ class DroneRobot extends RobotFramework {
 
             // See if there are any enemy robots within capturing range
             robots = rc.senseNearbyRobots(-1, enemyTeam);
-
             if (robots.length > 0) {
                 // Pick up a first robot within range
                 targetBot = robots[0].getID();
@@ -69,31 +68,30 @@ class DroneRobot extends RobotFramework {
     }
 
     Direction moveNextTo(MapLocation target) throws GameActionException{
-        //while I am not next to my target location
-        boolean moved = tryMove(rc.getLocation().directionTo(target));
-        /* while (!rc.getLocation().isAdjacentTo(target)) { */
+        waitforcooldown();
+        MapLocation curLoc = rc.getLocation();
+        Direction dir = curLoc.directionTo(target);
+        boolean moved = tryMove(dir);
         while (!moved) {
-            //try to move towards it
-            waitforcooldown();
-            MapLocation curLoc = rc.getLocation();
-            Direction dir = curLoc.directionTo(target);
-            while (!moved) {
-                if (!moved) {
-                    heading = dir.rotateRight();
-                    moved = tryMove(heading);
-                }
-                if (!moved) {
-                    heading = dir.rotateRight().rotateRight().rotateRight();
-                    moved = tryMove(heading);
-                }
-                if (!moved) {
-                    heading = dir.rotateLeft();
-                    moved = tryMove(heading);
-                }
-                if (!moved) {
-                    heading = dir.rotateLeft().rotateLeft().rotateLeft();
-                    moved = tryMove(heading);
-                }
+            if (!moved) {
+                heading = dir.rotateRight();
+                moved = tryMove(heading);
+            }
+            if (!moved) {
+                heading = dir.rotateRight().rotateRight().rotateRight();
+                moved = tryMove(heading);
+            }
+            if (!moved) {
+                heading = dir.rotateLeft();
+                moved = tryMove(heading);
+            }
+            if (!moved) {
+                heading = dir.rotateLeft().rotateLeft().rotateLeft();
+                moved = tryMove(heading);
+            }
+            if (!moved) {
+                heading = randomDirection();
+                moved = tryMove(heading);
             }
         }
     return heading;
@@ -101,16 +99,10 @@ class DroneRobot extends RobotFramework {
 
     void findWater(MapLocation loc) throws GameActionException {
         for (Direction dir : Direction.values()) {
-            MapLocation newLoc = loc.add(dir);
-            if (rc.senseFlooding(newLoc)) {
-                water = newLoc;
+            if (rc.canSenseLocation(loc.add(dir)) && rc.senseFlooding(loc.add(dir))) {
+                water = loc.add(dir);
                 return;
             }
-//            if (rc.getLocation().isWithinDistanceSquared(newLoc, 24)) {
-//                waitforcooldown();
-//                findWater(newLoc);
-//            }
         }
-        return;
     }
 }
