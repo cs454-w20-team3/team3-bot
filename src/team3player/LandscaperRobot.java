@@ -41,13 +41,23 @@ class LandscaperRobot extends RobotFramework {
         Direction dirTo = getDestinationDir(dirHQ);
         Direction dirDig = rc.getLocation().directionTo(hqLoc).opposite();  // old, non-working approach - (dirDep + 4) % 8
         System.out.println("Landscaper:" + rc.getID() + ", distance to HQ:" + distHQ + ", direction to HQ:" + dirHQ);
+				MapLocation[] locs = adjacentLocUnion(myLoc, hqLoc);
+				MapLocation optimal = minElev(locs);
+				Direction opt_dir = myLoc.directionTo(optimal);
         if (distHQ < 4) { // makes sure it is in the appropriate range from HQ
 //            if (hqLoc != null) goToLowPoint(dirHQ);
-            digDepMove(dirDig, dirDep, dirTo);
+						if (optimal == null)
+							digDepMove(dirDig, dirDep, dirTo);
+						else
+							digDepMove(dirDig, opt_dir, dirTo);
         }
         //else if its 2 spaces away and elevation is too high, help build the way from the outside
         else {
             if (distHQ > 2) {
+							if (optimal != null) {
+								//we have a good spot to deposit dirt
+								digDepMove(dirDig, opt_dir, dirTo);
+							}
                 System.out.println("distance over 2");
                 if (tryMoveSafe(dirHQ)) {
                     System.out.println("Landscaper " + rc.getID() + "moving towards HQ.");
@@ -91,7 +101,8 @@ class LandscaperRobot extends RobotFramework {
         }
         MapLocation result = locs[0];
         int min = rc.senseElevation(result);
-        for (int i=1; i< locs.length; i++) {
+        for (int i=1; i< locs.length  ; i++) {
+					if (locs[i] == null) continue;
             int cur = rc.senseElevation(locs[i]);
             if (cur < min) {
                 result = locs[i];
