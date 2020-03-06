@@ -3,14 +3,12 @@ import battlecode.common.*;
 import org.mockito.internal.matchers.Null;
 
 class DroneRobot extends RobotFramework {
-    MapLocation hqLoc;
     Team myTeam;
     Team enemyTeam;
     Direction heading;
     int targetBot;
-    MapLocation targetLoc;
-    Direction targetDir;
-    MapLocation water; //{};
+    Team targetTeam;
+    MapLocation water;
     RobotInfo[] robots = new RobotInfo[]{};
 
     DroneRobot(RobotController rc_) {
@@ -25,38 +23,47 @@ class DroneRobot extends RobotFramework {
     public void myTurn()throws GameActionException {
         //logic to be run on every turn goes here
         waitforcooldown();
-
         while (!rc.isCurrentlyHoldingUnit()) {
-            waitforcooldown();
-            if (water == null) {
-                findWater(rc.getLocation());
-            }
+           notHolding();
+        }
+        while (rc.isCurrentlyHoldingUnit()) {
+            holding();
+        }
+    }
 
-            // See if there are any enemy robots within capturing range
-            robots = rc.senseNearbyRobots(-1);
-            for (RobotInfo bot : robots) {
-                targetBot = bot.getID();
-                if (bot.getTeam() != myTeam && rc.canPickUpUnit(targetBot)) {
-                    rc.pickUpUnit(targetBot);
-                    System.out.println("I picked up " + targetBot + "!");
-                }
-            }
-            heading = moveNextTo(rc.adjacentLocation(heading));
+    void notHolding() throws GameActionException {
+        waitforcooldown();
+        if (true) {
+            findWater(rc.getLocation());
         }
 
-        while (rc.isCurrentlyHoldingUnit()) {
-            waitforcooldown();
-            for (Direction d : directions) {
-                if (rc.canDropUnit(d) && rc.senseFlooding(rc.getLocation().add(d))) {
-                    rc.dropUnit(d);
-                    System.out.println("I dropped " + targetBot + "!");
-                }
+        // See if there are any enemy robots within capturing range
+        robots = rc.senseNearbyRobots(-1);
+        for (RobotInfo bot : robots) {
+            targetBot = bot.getID();
+            targetTeam = bot.getTeam();
+            if (targetTeam != myTeam && rc.canPickUpUnit(targetBot)) {
+                rc.pickUpUnit(targetBot);
+                System.out.println("I picked up " + targetBot + "!");
+                break;
             }
-            if (water == null) {
-                findWater(rc.getLocation());
-            } else {
-                heading = moveNextTo(water);
+        }
+        heading = moveNextTo(rc.adjacentLocation(heading));
+    }
+
+    void holding() throws GameActionException {
+        waitforcooldown();
+        for (Direction d : directions) {
+            if (rc.canDropUnit(d) && rc.senseFlooding(rc.getLocation().add(d)) && targetTeam == enemyTeam) {
+                rc.dropUnit(d);
+                System.out.println("I dropped " + targetBot + "!");
             }
+        }
+        if (water == null) {
+            heading = moveNextTo(rc.adjacentLocation(heading));
+            findWater(rc.getLocation());
+        } else {
+            heading = moveNextTo(water);
         }
     }
 

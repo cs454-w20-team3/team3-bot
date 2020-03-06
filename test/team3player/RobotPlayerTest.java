@@ -517,6 +517,90 @@ public class RobotPlayerTest {
 		robot.myTurn();
 		verify(rc, atMost(5)).buildRobot(any(RobotType.class), any(Direction.class));
 	}
+	@Test
+	public void test_Drone_Constructor() throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.DELIVERY_DRONE);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(0, 0));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		//test case specific
+		DroneRobot robot = new DroneRobot(rc);
+	}
+	@Test
+	public void test_Drone_findWater() throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.DELIVERY_DRONE);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(20, 20));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		//test case specific
+		DroneRobot robot = new DroneRobot(rc);
+		MapLocation locA = new MapLocation(19,19);
+		when(rc.canSenseLocation(any(MapLocation.class))).thenReturn(false, false, true, true);
+		when(rc.senseFlooding((any(MapLocation.class)))).thenReturn(false, true, false, true);
+		robot.findWater(rc.getLocation());
+	}
+	@Test
+	public void test_Drone_moveNextTo() throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.DELIVERY_DRONE);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(20, 20));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		//test case specific
+		DroneRobot robot = new DroneRobot(rc);
+		MapLocation locA = new MapLocation(19,19);
+		when(rc.canMove(any(Direction.class))).thenReturn(false, false, false, false, false, true);
+		robot.moveNextTo(locA);
+	}
+	@Test
+	public void test_Drone_notHolding() throws GameActionException {
+		rc = mock(RobotController.class);
+		//basic mock setup
+		when(rc.getTeam()).thenReturn(Team.A);
+		when(rc.getType()).thenReturn(RobotType.DELIVERY_DRONE);
+		when(rc.getID()).thenReturn(0);
+		when(rc.getLocation()).thenReturn(new MapLocation(20, 20));
+		when(rc.getRoundNum()).thenReturn(0);
+		when(rc.isReady()).thenReturn(true);
+		//test case specific
+		MapLocation locA = new MapLocation(19,19);
+		when(rc.canMove(any(Direction.class))).thenReturn(true);
+		when(rc.canSenseLocation(any(MapLocation.class))).thenReturn(true);
+		when(rc.senseFlooding((any(MapLocation.class)))).thenReturn(true);
+		RobotInfo abotA = mock(RobotInfo.class);
+		when(abotA.getType()).thenReturn(RobotType.LANDSCAPER);
+		when(abotA.getTeam()).thenReturn(Team.B);
+		when(abotA.getLocation()).thenReturn(new MapLocation(18,18));
+		when(abotA.getID()).thenReturn(1);
+		when(rc.isCurrentlyHoldingUnit()).thenReturn(true);
+		when(rc.canPickUpUnit(anyInt())).thenReturn(true);
+		when(rc.canDropUnit(any(Direction.class))).thenReturn(true);
+		RobotInfo[] nearbyRobots = new RobotInfo[]{abotA};
+		when(rc.senseNearbyRobots(-1)).thenReturn(nearbyRobots);
+		DroneRobot robot = new DroneRobot(rc);
+		robot.heading = Direction.NORTH;
+//		robot.myTurn();
+//		assertEquals(abotA.getID(), robot.targetBot);
+//		verify(rc, atMost(1)).pickUpUnit(anyInt());
+	}
+
+
+
+
+
+
+
 
 
 
