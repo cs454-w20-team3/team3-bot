@@ -3,7 +3,10 @@ import battlecode.common.*;
 class HQRobot extends RobotFramework {
     int numOfMiners = 0;
     final int maxNumOfMiners = 10;
-    int enemySecret = -1;
+    int enemySecretPosition = 0;
+    int enemySecret = 444444444;
+    int totalEnemyMessageLength = 6;
+    int[] EnemyCode;
 
     HQRobot(RobotController rc_) {
         //super(rc_) calls the constructor of the parent class which just saves rc
@@ -14,19 +17,26 @@ class HQRobot extends RobotFramework {
     public void myTurn() throws GameActionException {
         waitforcooldown();
         if(enemySecret == -1) {
-            enemySecret = getMsgFromBlockchain();
+            EnemyCode = getMsgFromBlockchain();
+            enemySecretPosition = EnemyCode[0];
+            enemySecret = EnemyCode[1];
+            totalEnemyMessageLength = EnemyCode[2];
+
+            if (enemySecretPosition == totalEnemyMessageLength)
+                enemySecretPosition = 0;
+
             System.out.println("enemySecret: " + enemySecret);
         }
       else {
             if( rc.getRoundNum() > 40 && rc.getRoundNum() < 140){
                 //sendHqMssg(enemySecret);
                 for(int i = 0; i < 3; i++)
-                    sendDSMssg(enemySecret);
+                    sendDSMssg(enemySecret, enemySecretPosition, totalEnemyMessageLength);
             }
             if( rc.getRoundNum() > 5 && rc.getRoundNum() < 20){
                 //sendHqMssg(enemySecret);
                 for(int i = 0; i < 7; i++)
-                    sendSoupMssg(enemySecret);
+                    sendSoupMssg(enemySecret, enemySecretPosition, totalEnemyMessageLength);
             }
         }
 //        else {
