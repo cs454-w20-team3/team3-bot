@@ -92,7 +92,7 @@ public abstract class RobotFramework {
         int[] message = new int[totalEnemyMessageLength];
 
         message[enemySecretPosition] = enemySecret;
-        message[enemySecretPosition++] = 2;
+        message[enemySecretPosition++] = BuildingCode;
 
         for(count=0; count<totalEnemyMessageLength-1; count++)
         {

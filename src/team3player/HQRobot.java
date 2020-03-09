@@ -13,10 +13,11 @@ class HQRobot extends RobotFramework {
         //the parent class also has the old utility functions like tryMove which need rc
         super(rc_);
 
-    }
+    };
+
     public void myTurn() throws GameActionException {
         waitforcooldown();
-        if(enemySecret == -1) {
+        if(enemySecret == 444444444) {
             EnemyCode = getMsgFromBlockchain();
             enemySecretPosition = EnemyCode[0];
             enemySecret = EnemyCode[1];
